@@ -17,25 +17,47 @@ class ApiClient {
   }
 
   String get _domain {
-    // You can implement logic to get current domain
-    // For now, returning localhost as default
-    return 'localhost:3000';
+    try {
+      final host = Uri.base.host;
+
+      print('🌐 Domínio detectado: $host');
+
+      // Identifica qual cliente baseado no domínio
+      if (host == 'devnology.com') {
+        return 'devnology.com';
+      } else if (host == 'in8.com') {
+        return 'in8.com';
+      } else if (host == 'localhost' || host == '127.0.0.1') {
+        return 'localhost';
+      }
+
+      return 'localhost';
+    } catch (e) {
+      print('❌ Erro ao detectar domínio: $e');
+      return 'localhost';
+    }
   }
 
   Future<Map<String, String>> _getHeaders({bool includeAuth = true}) async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'host': _domain,
+      'X-Client-Domain': _domain,
     };
 
     if (includeAuth) {
       final token = await _token;
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
+        print(
+            '🔑 Token adicionado ao header: ${token.substring(0, 20)}...'); // 🔍 LOG
+      } else {
+        print(
+            '⚠️ AVISO: Requisição autenticada mas token não encontrado!'); // 🔍 LOG
       }
     }
 
+    print('📨 Headers: $headers'); // 🔍 LOG
     return headers;
   }
 

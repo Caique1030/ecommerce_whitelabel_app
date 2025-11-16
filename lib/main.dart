@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ecommerce/core/services/socket_io_service.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/injection_container.dart' as di;
@@ -27,6 +28,10 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => di.sl<WhitelabelProvider>()..loadClientConfig(),
+        ),
+        Provider<SocketIOService>(
+          create: (_) => di.sl<SocketIOService>(),
+          dispose: (_, service) => service.disconnect(),
         ),
       ],
       child: Consumer<WhitelabelProvider>(

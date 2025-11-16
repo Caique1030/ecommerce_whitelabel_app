@@ -1,10 +1,16 @@
 import 'package:equatable/equatable.dart';
+import '../../domain/entities/product.dart';
 
 abstract class ProductsEvent extends Equatable {
   const ProductsEvent();
 
   @override
   List<Object?> get props => [];
+}
+
+/// Evento para sincronizar produtos dos fornecedores
+class SyncProductsEvent extends ProductsEvent {
+  const SyncProductsEvent();
 }
 
 class LoadProducts extends ProductsEvent {
@@ -28,14 +34,14 @@ class LoadProducts extends ProductsEvent {
 
   @override
   List<Object?> get props => [
-    name,
-    category,
-    minPrice,
-    maxPrice,
-    supplierId,
-    offset,
-    limit,
-  ];
+        name,
+        category,
+        minPrice,
+        maxPrice,
+        supplierId,
+        offset,
+        limit,
+      ];
 }
 
 class LoadProductById extends ProductsEvent {
@@ -66,4 +72,38 @@ class FilterProductsEvent extends ProductsEvent {
 
 class ResetFilters extends ProductsEvent {
   const ResetFilters();
+}
+
+/// Evento para criar um novo produto
+class CreateProductEvent extends ProductsEvent {
+  final Product product;
+
+  const CreateProductEvent({required this.product});
+
+  @override
+  List<Object?> get props => [product];
+}
+
+/// Evento para atualizar um produto
+class UpdateProductEvent extends ProductsEvent {
+  final String id;
+  final Product product;
+
+  const UpdateProductEvent({
+    required this.id,
+    required this.product,
+  });
+
+  @override
+  List<Object?> get props => [id, product];
+}
+
+/// Evento para deletar um produto
+class DeleteProductEvent extends ProductsEvent {
+  final String id;
+
+  const DeleteProductEvent({required this.id});
+
+  @override
+  List<Object?> get props => [id];
 }

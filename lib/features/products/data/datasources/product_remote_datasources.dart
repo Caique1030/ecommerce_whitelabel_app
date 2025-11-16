@@ -4,6 +4,7 @@ import '../../../../core/network/api_client.dart';
 import '../models/product_model.dart';
 
 abstract class ProductRemoteDataSource {
+  /// Obtém lista de produtos com filtros opcionais
   Future<List<ProductModel>> getProducts({
     String? name,
     String? category,
@@ -14,15 +15,19 @@ abstract class ProductRemoteDataSource {
     int? limit,
   });
 
+  /// Obtém um produto por ID
   Future<ProductModel> getProductById(String id);
 
-  Future<ProductModel> createProduct(Map<String, dynamic> productData);
+  /// Cria um novo produto
+  Future<ProductModel> createProduct(ProductModel product);
 
-  Future<ProductModel> updateProduct(
-      String id, Map<String, dynamic> productData);
+  /// Atualiza um produto existente
+  Future<ProductModel> updateProduct(String id, ProductModel product);
 
+  /// Remove um produto
   Future<void> deleteProduct(String id);
 
+  /// Sincroniza produtos dos fornecedores
   Future<void> syncProducts();
 }
 
@@ -42,44 +47,31 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     int? limit,
   }) async {
     try {
-      final queryParams = <String, String>{};
+      final queryParameters = <String, String>{};
 
-      if (name != null) queryParams['name'] = name;
-      if (category != null) queryParams['category'] = category;
-      if (minPrice != null) queryParams['minPrice'] = minPrice.toString();
-      if (maxPrice != null) queryParams['maxPrice'] = maxPrice.toString();
-      if (supplierId != null) queryParams['supplierId'] = supplierId;
-      if (offset != null) queryParams['offset'] = offset.toString();
-      if (limit != null) queryParams['limit'] = limit.toString();
+      if (name != null) queryParameters['name'] = name;
+      if (category != null) queryParameters['category'] = category;
+      if (minPrice != null) queryParameters['minPrice'] = minPrice.toString();
+      if (maxPrice != null) queryParameters['maxPrice'] = maxPrice.toString();
+      if (supplierId != null) queryParameters['supplierId'] = supplierId;
+      if (offset != null) queryParameters['offset'] = offset.toString();
+      if (limit != null) queryParameters['limit'] = limit.toString();
 
       final response = await apiClient.get(
         AppConstants.productsEndpoint,
-        queryParameters: queryParams,
-        requiresAuth: false,
+        queryParameters: queryParameters,
+        requiresAuth: false, // Produtos são públicos
       );
 
       if (response == null) {
         throw ServerException(message: 'Invalid response from server');
       }
 
-      // A resposta pode vir com a estrutura { products: [], total: 0 } ou diretamente como array
-      final List<dynamic> productsData;
-      if (response is Map<String, dynamic> &&
-          response.containsKey('products')) {
-        productsData = response['products'] as List<dynamic>;
-      } else if (response is List) {
-        productsData = response;
-      } else {
-        throw ServerException(message: 'Unexpected response format');
-      }
-
-      return productsData
-          .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
-          .toList();
+      // O backend retorna { products: [], total: number }
+      final products = response['products'] as List;
+      return products.map((json) => ProductModel.fromJson(json)).toList();
     } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
+      if (e is ServerException) rethrow;
       throw ServerException(
         message: 'Failed to get products: ${e.toString()}',
       );
@@ -100,9 +92,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
       return ProductModel.fromJson(response);
     } catch (e) {
-      if (e is NotFoundException) {
-        rethrow;
-      }
+      if (e is NotFoundException) rethrow;
       throw ServerException(
         message: 'Failed to get product: ${e.toString()}',
       );
@@ -110,11 +100,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<ProductModel> createProduct(Map<String, dynamic> productData) async {
+  Future<ProductModel> createProduct(ProductModel product) async {
     try {
       final response = await apiClient.post(
         AppConstants.productsEndpoint,
-        body: productData,
+        body: product.toJson(),
         requiresAuth: true,
       );
 
@@ -124,9 +114,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
       return ProductModel.fromJson(response);
     } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
+      if (e is ServerException) rethrow;
       throw ServerException(
         message: 'Failed to create product: ${e.toString()}',
       );
@@ -134,14 +122,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<ProductModel> updateProduct(
-    String id,
-    Map<String, dynamic> productData,
-  ) async {
+  Future<ProductModel> updateProduct(String id, ProductModel product) async {
     try {
       final response = await apiClient.patch(
         '${AppConstants.productsEndpoint}/$id',
-        body: productData,
+        body: product.toJson(),
         requiresAuth: true,
       );
 
@@ -151,9 +136,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
       return ProductModel.fromJson(response);
     } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
+      if (e is ServerException) rethrow;
       throw ServerException(
         message: 'Failed to update product: ${e.toString()}',
       );
@@ -168,9 +151,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         requiresAuth: true,
       );
     } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
+      if (e is ServerException) rethrow;
       throw ServerException(
         message: 'Failed to delete product: ${e.toString()}',
       );
@@ -186,9 +167,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         requiresAuth: true,
       );
     } catch (e) {
-      if (e is ServerException) {
-        rethrow;
-      }
+      if (e is ServerException) rethrow;
       throw ServerException(
         message: 'Failed to sync products: ${e.toString()}',
       );

@@ -1,52 +1,38 @@
-import 'package:flutter_ecommerce/features/products/domain/entities/product.dart';
+import '../../domain/entities/product.dart';
 
 class ProductModel extends Product {
   const ProductModel({
-    required String id,
-    required String name,
-    String? description,
-    required double price,
-    String? image,
-    List<String>? gallery,
-    String? category,
-    String? material,
-    String? department,
-    String? discountValue,
-    bool hasDiscount = false,
-    Map<String, dynamic>? details,
-    String? externalId,
-    String? supplierId,
-    String? clientId,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  }) : super(
-          id: id,
-          name: name,
-          description: description,
-          price: price,
-          image: image,
-          gallery: gallery,
-          category: category,
-          material: material,
-          department: department,
-          discountValue: discountValue,
-          hasDiscount: hasDiscount,
-          details: details,
-          externalId: externalId,
-          supplierId: supplierId,
-          clientId: clientId,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-        );
+    required super.id,
+    required super.name,
+    super.description,
+    required super.price,
+    super.image,
+    super.gallery,
+    super.category,
+    super.material,
+    super.department,
+    super.discountValue,
+    super.hasDiscount,
+    super.details,
+    super.externalId,
+    super.supplierId,
+    super.clientId,
+    required super.createdAt,
+    required super.updatedAt,
+  });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
       id: json['id'] as String,
-      name: json['name'] as String? ?? '',
+      name: json['name'] as String,
       description: json['description'] as String?,
-      price: _parsePrice(json['price']),
+      price: (json['price'] is String)
+          ? double.parse(json['price'] as String)
+          : (json['price'] as num).toDouble(),
       image: json['image'] as String?,
-      gallery: _parseGallery(json['gallery']),
+      gallery: json['gallery'] != null
+          ? List<String>.from(json['gallery'] as List)
+          : null,
       category: json['category'] as String?,
       material: json['material'] as String?,
       department: json['department'] as String?,
@@ -63,30 +49,6 @@ class ProductModel extends Product {
           ? DateTime.parse(json['updatedAt'] as String)
           : DateTime.now(),
     );
-  }
-
-  static double _parsePrice(dynamic price) {
-    if (price == null) return 0.0;
-    if (price is double) return price;
-    if (price is int) return price.toDouble();
-    if (price is String) {
-      // Remove símbolos de moeda e espaços
-      final cleanPrice = price.replaceAll(RegExp(r'[^\d.,]'), '');
-      return double.tryParse(cleanPrice.replaceAll(',', '.')) ?? 0.0;
-    }
-    return 0.0;
-  }
-
-  static List<String>? _parseGallery(dynamic gallery) {
-    if (gallery == null) return null;
-    if (gallery is List) {
-      return gallery.map((e) => e.toString()).toList();
-    }
-    if (gallery is String) {
-      // Se for uma string separada por vírgulas
-      return gallery.split(',').map((e) => e.trim()).toList();
-    }
-    return null;
   }
 
   Map<String, dynamic> toJson() {
@@ -109,6 +71,28 @@ class ProductModel extends Product {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
+  }
+
+  Product toEntity() {
+    return Product(
+      id: id,
+      name: name,
+      description: description,
+      price: price,
+      image: image,
+      gallery: gallery,
+      category: category,
+      material: material,
+      department: department,
+      discountValue: discountValue,
+      hasDiscount: hasDiscount,
+      details: details,
+      externalId: externalId,
+      supplierId: supplierId,
+      clientId: clientId,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
   }
 
   factory ProductModel.fromEntity(Product product) {

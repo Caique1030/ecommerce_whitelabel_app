@@ -16,6 +16,10 @@ class ProductsLoading extends ProductsState {
   const ProductsLoading();
 }
 
+class ProductsSyncing extends ProductsState {
+  const ProductsSyncing();
+}
+
 class ProductsLoaded extends ProductsState {
   final List<Product> products;
   final String? currentFilter;
@@ -46,4 +50,33 @@ class ProductsError extends ProductsState {
 
 class ProductsEmpty extends ProductsState {
   const ProductsEmpty();
+}
+
+/// Estados para operações CRUD
+
+class ProductCreatedSuccess extends ProductsState {
+  final Product product;
+
+  const ProductCreatedSuccess({required this.product});
+
+  @override
+  List<Object?> get props => [product];
+}
+
+class ProductUpdatedSuccess extends ProductsState {
+  final Product product;
+
+  const ProductUpdatedSuccess({required this.product});
+
+  @override
+  List<Object?> get props => [product];
+}
+
+class ProductDeletedSuccess extends ProductsState {
+  final String productId;
+
+  const ProductDeletedSuccess({required this.productId});
+
+  @override
+  List<Object?> get props => [productId];
 }

@@ -24,9 +24,9 @@ class AppConstants {
 
   // Client Domains
   static const Map<String, String> clientDomains = {
-    'localhost': 'localhost:3000',
-    'devnology': 'devnology.com:3000',
-    'in8': 'in8.com:3000',
+    'localhost': 'localhost',
+    'devnology': 'devnology.com',
+    'in8': 'in8.com',
   };
 
   // Theme Colors

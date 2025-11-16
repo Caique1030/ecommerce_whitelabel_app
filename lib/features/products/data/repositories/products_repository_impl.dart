@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter_ecommerce/features/products/data/datasources/product_remote_datasources.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/repositories/products_repository.dart';
+import '../datasources/product_remote_datasources.dart';
 import '../models/product_model.dart';
 
 class ProductsRepositoryImpl implements ProductsRepository {
@@ -22,7 +22,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
     int? limit,
   }) async {
     try {
-      final productModels = await remoteDataSource.getProducts(
+      final products = await remoteDataSource.getProducts(
         name: name,
         category: category,
         minPrice: minPrice,
@@ -32,38 +32,29 @@ class ProductsRepositoryImpl implements ProductsRepository {
         limit: limit,
       );
 
-      final products = productModels.map((model) => model as Product).toList();
       return Right(products);
     } on ServerException catch (e) {
-      return Left(
-        ServerFailure(message: e.message, statusCode: e.statusCode),
-      );
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(
-        UnexpectedFailure('Erro inesperado ao buscar produtos'),
-      );
+      return Left(UnexpectedFailure('Unexpected error: ${e.toString()}'));
     }
   }
 
   @override
   Future<Either<Failure, Product>> getProductById(String id) async {
     try {
-      final productModel = await remoteDataSource.getProductById(id);
-      return Right(productModel);
+      final product = await remoteDataSource.getProductById(id);
+      return Right(product);
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(e.message));
     } on ServerException catch (e) {
-      return Left(
-        ServerFailure(message: e.message, statusCode: e.statusCode),
-      );
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(
-        UnexpectedFailure('Erro inesperado ao buscar produto'),
-      );
+      return Left(UnexpectedFailure('Unexpected error: ${e.toString()}'));
     }
   }
 
@@ -71,22 +62,16 @@ class ProductsRepositoryImpl implements ProductsRepository {
   Future<Either<Failure, Product>> createProduct(Product product) async {
     try {
       final productModel = ProductModel.fromEntity(product);
-      final createdProduct = await remoteDataSource.createProduct(
-        productModel.toJson(),
-      );
+      final createdProduct = await remoteDataSource.createProduct(productModel);
       return Right(createdProduct);
     } on ValidationException catch (e) {
       return Left(ValidationFailure(message: e.message));
     } on ServerException catch (e) {
-      return Left(
-        ServerFailure(message: e.message, statusCode: e.statusCode),
-      );
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(
-        UnexpectedFailure('Erro inesperado ao criar produto'),
-      );
+      return Left(UnexpectedFailure('Unexpected error: ${e.toString()}'));
     }
   }
 
@@ -97,25 +82,19 @@ class ProductsRepositoryImpl implements ProductsRepository {
   ) async {
     try {
       final productModel = ProductModel.fromEntity(product);
-      final updatedProduct = await remoteDataSource.updateProduct(
-        id,
-        productModel.toJson(),
-      );
+      final updatedProduct =
+          await remoteDataSource.updateProduct(id, productModel);
       return Right(updatedProduct);
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(e.message));
     } on ValidationException catch (e) {
       return Left(ValidationFailure(message: e.message));
     } on ServerException catch (e) {
-      return Left(
-        ServerFailure(message: e.message, statusCode: e.statusCode),
-      );
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(
-        UnexpectedFailure('Erro inesperado ao atualizar produto'),
-      );
+      return Left(UnexpectedFailure('Unexpected error: ${e.toString()}'));
     }
   }
 
@@ -127,15 +106,11 @@ class ProductsRepositoryImpl implements ProductsRepository {
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(e.message));
     } on ServerException catch (e) {
-      return Left(
-        ServerFailure(message: e.message, statusCode: e.statusCode),
-      );
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(
-        UnexpectedFailure('Erro inesperado ao deletar produto'),
-      );
+      return Left(UnexpectedFailure('Unexpected error: ${e.toString()}'));
     }
   }
 
@@ -145,15 +120,11 @@ class ProductsRepositoryImpl implements ProductsRepository {
       await remoteDataSource.syncProducts();
       return const Right(null);
     } on ServerException catch (e) {
-      return Left(
-        ServerFailure(message: e.message, statusCode: e.statusCode),
-      );
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      return Left(
-        UnexpectedFailure('Erro inesperado ao sincronizar produtos'),
-      );
+      return Left(UnexpectedFailure('Unexpected error: ${e.toString()}'));
     }
   }
 }
