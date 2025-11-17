@@ -5,7 +5,6 @@ import 'package:flutter_ecommerce/features/products/presentation/widgets/product
 import 'package:flutter_ecommerce/features/products/presentation/widgets/products_grid.dart';
 import 'package:provider/provider.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../client/presentation/provider/whitelabel_provider.dart';
 import '../../../../core/services/socket_io_service.dart';
@@ -22,6 +21,7 @@ class ProductsListPage extends StatefulWidget {
 
 class _ProductsListPageState extends State<ProductsListPage> {
   late final SocketIOService _socketService;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -55,6 +55,7 @@ class _ProductsListPageState extends State<ProductsListPage> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _socketService.disconnect();
     super.dispose();
   }
@@ -65,8 +66,17 @@ class _ProductsListPageState extends State<ProductsListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(whitelabelProvider.client?.name ?? 'Produtos'),
+        title: Text(whitelabelProvider.client?.name ?? 'Início'),
+        backgroundColor: Theme.of(context).primaryColor,
         actions: [
+          // Botão de busca
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              _showSearchDialog(context);
+            },
+            tooltip: 'Buscar',
+          ),
           // Botão para sincronizar manualmente
           IconButton(
             icon: const Icon(Icons.sync),
@@ -75,19 +85,13 @@ class _ProductsListPageState extends State<ProductsListPage> {
             },
             tooltip: 'Sincronizar Produtos',
           ),
+          // Botão de filtro
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
               _showFilterDialog(context);
             },
             tooltip: 'Filtrar Produtos',
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthBloc>().add(const SignOutRequested());
-            },
-            tooltip: 'Sair',
           ),
         ],
       ),
@@ -305,9 +309,9 @@ class _ProductsListPageState extends State<ProductsListPage> {
         ),
       ),
 
-      // Indicador de conexão Socket.IO
+      // Indicador de conexão Socket.IO (opcional - pode remover se quiser)
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(4),
         color: _socketService.isConnected
             ? Colors.green.withOpacity(0.1)
             : Colors.red.withOpacity(0.1),
@@ -316,21 +320,66 @@ class _ProductsListPageState extends State<ProductsListPage> {
           children: [
             Icon(
               _socketService.isConnected ? Icons.cloud_done : Icons.cloud_off,
-              size: 16,
+              size: 14,
               color: _socketService.isConnected ? Colors.green : Colors.red,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Text(
               _socketService.isConnected
-                  ? 'Conectado em tempo real'
+                  ? 'Conectado'
                   : 'Desconectado',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 10,
                 color: _socketService.isConnected ? Colors.green : Colors.red,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showSearchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Buscar Produto'),
+        content: TextField(
+          controller: _searchController,
+          decoration: const InputDecoration(
+            labelText: 'Nome do produto',
+            prefixIcon: Icon(Icons.search),
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            if (value.trim().isNotEmpty) {
+              Navigator.of(dialogContext).pop();
+              context.read<ProductsBloc>().add(
+                    FilterProductsEvent(searchQuery: value.trim()),
+                  );
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (_searchController.text.trim().isNotEmpty) {
+                Navigator.of(dialogContext).pop();
+                context.read<ProductsBloc>().add(
+                      FilterProductsEvent(
+                        searchQuery: _searchController.text.trim(),
+                      ),
+                    );
+              }
+            },
+            child: const Text('Buscar'),
+          ),
+        ],
       ),
     );
   }

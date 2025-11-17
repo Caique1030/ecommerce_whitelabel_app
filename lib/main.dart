@@ -3,15 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ecommerce/core/services/socket_io_service.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
+import 'package:flutter_ecommerce/features/auth/presentation/pages/register_page.dart';
 import 'package:flutter_ecommerce/features/injection_container.dart' as di;
 import 'package:provider/provider.dart';
 
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/products/presentation/bloc/products_bloc.dart';
-import 'features/products/presentation/pages/products_list_page.dart';
 import 'features/client/presentation/provider/whitelabel_provider.dart';
 import 'core/theme/app_theme.dart';
+import 'core/navigation/main_navigation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,33 +45,40 @@ class MyApp extends StatelessWidget {
               ),
               BlocProvider<ProductsBloc>(create: (_) => di.sl<ProductsBloc>()),
             ],
-            child: MaterialApp(
-              title: whitelabelProvider.client?.name ?? 'E-Commerce',
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.getTheme(
-                primaryColor: whitelabelProvider.client?.primaryColorValue,
-                secondaryColor: whitelabelProvider.client?.secondaryColorValue,
-              ),
-              home: BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  if (state is AuthLoading) {
-                    return const Scaffold(
-                      body: Center(child: CircularProgressIndicator()),
-                    );
-                  }
+child: MaterialApp(
+  title: whitelabelProvider.client?.name ?? 'E-Commerce',
+  debugShowCheckedModeBanner: false,
+  theme: AppTheme.getTheme(
+    primaryColor: whitelabelProvider.client?.primaryColorValue,
+    secondaryColor: whitelabelProvider.client?.secondaryColorValue,
+  ),
 
-                  if (state is Authenticated) {
-                    return const ProductsListPage();
-                  }
+  // 🔥 SEM HOME — Agora inicializamos pela rota nomeada
+  initialRoute: '/auth-check',
 
-                  return const LoginPage();
-                },
-              ),
-              routes: {
-                '/login': (context) => const LoginPage(),
-                '/products': (context) => const ProductsListPage(),
-              },
-            ),
+  routes: {
+    '/auth-check': (context) {
+      final state = context.watch<AuthBloc>().state;
+
+      if (state is AuthLoading) {
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      if (state is Authenticated) {
+        return const MainNavigation();
+      }
+
+      return const LoginPage();
+    },
+
+    '/login': (context) => const LoginPage(),
+    '/register': (context) => const RegisterPage(),
+    '/home': (context) => const MainNavigation(),
+  },
+),
+
           );
         },
       ),
