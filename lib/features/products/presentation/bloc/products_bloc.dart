@@ -50,7 +50,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       (failure) => emit(ProductsError(message: failure.message)),
       (_) async {
         // Após sincronizar, carrega os produtos
-        add(const LoadProducts());
+        add(const LoadProducts(forceRefresh: true));
       },
     );
   }
@@ -63,13 +63,8 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
     final result = await getProducts(
       GetProductsParams(
-        name: event.name,
-        category: event.category,
-        minPrice: event.minPrice,
-        maxPrice: event.maxPrice,
-        supplierId: event.supplierId,
-        offset: event.offset,
-        limit: event.limit,
+        limit: -1, // ✅ Adicione isso
+        forceRefresh: event.forceRefresh, // ✅ Adicione isso
       ),
     );
 
@@ -143,7 +138,11 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   ) async {
     emit(const ProductsLoading());
 
-    final result = await getProducts(const GetProductsParams());
+    final result = await getProducts(
+      const GetProductsParams(
+        limit: -1, // ✅ Adicione isso
+      ),
+    );
 
     result.fold(
       (failure) => emit(ProductsError(message: failure.message)),

@@ -55,7 +55,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       if (maxPrice != null) queryParameters['maxPrice'] = maxPrice.toString();
       if (supplierId != null) queryParameters['supplierId'] = supplierId;
       if (offset != null) queryParameters['offset'] = offset.toString();
-      if (limit != null) queryParameters['limit'] = limit.toString();
+      queryParameters['limit'] = (limit ?? -1).toString();
 
       final response = await apiClient.get(
         AppConstants.productsEndpoint,

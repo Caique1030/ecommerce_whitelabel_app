@@ -30,6 +30,7 @@ class GetProductsParams extends Equatable {
   final String? supplierId;
   final int? offset;
   final int? limit;
+  final bool forceRefresh;
 
   const GetProductsParams({
     this.name,
@@ -39,16 +40,18 @@ class GetProductsParams extends Equatable {
     this.supplierId,
     this.offset,
     this.limit,
+    this.forceRefresh = false,
   });
 
   @override
   List<Object?> get props => [
-    name,
-    category,
-    minPrice,
-    maxPrice,
-    supplierId,
-    offset,
-    limit,
-  ];
+        name,
+        category,
+        minPrice,
+        maxPrice,
+        supplierId,
+        offset,
+        limit,
+        forceRefresh,
+      ];
 }

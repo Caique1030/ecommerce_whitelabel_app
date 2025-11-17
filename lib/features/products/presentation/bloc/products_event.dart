@@ -21,6 +21,7 @@ class LoadProducts extends ProductsEvent {
   final String? supplierId;
   final int? offset;
   final int? limit;
+  final bool forceRefresh;
 
   const LoadProducts({
     this.name,
@@ -30,6 +31,7 @@ class LoadProducts extends ProductsEvent {
     this.supplierId,
     this.offset,
     this.limit,
+    this.forceRefresh = false,
   });
 
   @override

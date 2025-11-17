@@ -76,7 +76,10 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<ProductsRepository>(
-    () => ProductsRepositoryImpl(remoteDataSource: sl()),
+    () => ProductsRepositoryImpl(
+      remoteDataSource: sl(),
+      sharedPreferences: sl(), // ✅ Adicione o SharedPreferences
+    ),
   );
 
   // Data sources

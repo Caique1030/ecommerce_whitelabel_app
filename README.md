@@ -124,3 +124,5 @@ lib/
 └── injection_container.dart
 
 quero criar um projeto front end , com base nessa estrutura. Para que eu possa rodar os comandos. Seria no cmd normal ou eu devo fazer diretamente no terminal do vsCode. Pois nao sei se esses comandos irão funcionar
+
+$ flutter run -d chrome --web-hostname=devnology.com --web-port=8000
