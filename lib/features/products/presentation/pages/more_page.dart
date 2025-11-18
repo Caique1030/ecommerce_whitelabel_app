@@ -4,6 +4,7 @@ import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_bloc.dart
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/client/presentation/provider/whitelabel_provider.dart';
+import 'package:flutter_ecommerce/features/users/presentantion/pages/user_edit_page.dart';
 import 'package:provider/provider.dart';
 
 class MorePage extends StatelessWidget {
@@ -98,19 +99,17 @@ class MorePage extends StatelessWidget {
 
             // Seção: Conta
             _buildSectionHeader(context, 'Minha Conta'),
-            _buildMenuItem(
-              context,
-              icon: Icons.person_outline,
-              title: 'Editar Perfil',
-              subtitle: 'Alterar nome e informações',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidade em desenvolvimento'),
-                  ),
-                );
-              },
-            ),
+           _buildMenuItem(
+                context,
+                icon: Icons.person_outline,
+                title: 'Editar Perfil',
+                subtitle: 'Alterar nome e informações',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                  );
+                },
+              ),
             _buildMenuItem(
               context,
               icon: Icons.lock_outline,

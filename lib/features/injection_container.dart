@@ -15,13 +15,10 @@ import 'package:flutter_ecommerce/features/client/presentation/provider/whitelab
 import 'package:flutter_ecommerce/features/products/data/datasources/product_remote_datasources.dart';
 import 'package:flutter_ecommerce/features/products/data/repositories/products_repository_impl.dart';
 import 'package:flutter_ecommerce/features/products/domain/repositories/products_repository.dart';
-import 'package:flutter_ecommerce/features/products/domain/usecases/create_product.dart';
-import 'package:flutter_ecommerce/features/products/domain/usecases/delete_product.dart';
 import 'package:flutter_ecommerce/features/products/domain/usecases/filter_products.dart';
 import 'package:flutter_ecommerce/features/products/domain/usecases/get_products.dart';
 import 'package:flutter_ecommerce/features/products/domain/usecases/get_products_by_id.dart';
 import 'package:flutter_ecommerce/features/products/domain/usecases/sync_product.dart';
-import 'package:flutter_ecommerce/features/products/domain/usecases/update_product.dart';
 import 'package:flutter_ecommerce/features/products/presentation/bloc/products_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -59,9 +56,6 @@ Future<void> init() async {
       getProductById: sl(),
       filterProducts: sl(),
       syncProducts: sl(),
-      createProduct: sl(),
-      updateProduct: sl(),
-      deleteProduct: sl(),
     ),
   );
 
@@ -70,9 +64,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetProductById(sl()));
   sl.registerLazySingleton(() => FilterProducts(sl()));
   sl.registerLazySingleton(() => SyncProducts(sl()));
-  sl.registerLazySingleton(() => CreateProduct(sl()));
-  sl.registerLazySingleton(() => UpdateProduct(sl()));
-  sl.registerLazySingleton(() => DeleteProduct(sl()));
 
   // Repository
   sl.registerLazySingleton<ProductsRepository>(
