@@ -325,9 +325,7 @@ class _ProductsListPageState extends State<ProductsListPage> {
             ),
             const SizedBox(width: 6),
             Text(
-              _socketService.isConnected
-                  ? 'Conectado'
-                  : 'Desconectado',
+              _socketService.isConnected ? 'Conectado' : 'Desconectado',
               style: TextStyle(
                 fontSize: 10,
                 color: _socketService.isConnected ? Colors.green : Colors.red,

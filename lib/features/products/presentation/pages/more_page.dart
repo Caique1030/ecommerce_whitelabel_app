@@ -6,9 +6,54 @@ import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dar
 import 'package:flutter_ecommerce/features/client/presentation/provider/whitelabel_provider.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/pages/user_edit_page.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/services/socket_io_service.dart';
 
-class MorePage extends StatelessWidget {
+class MorePage extends StatefulWidget {
   const MorePage({Key? key}) : super(key: key);
+
+  @override
+  State<MorePage> createState() => _MorePageState();
+}
+
+class _MorePageState extends State<MorePage> {
+  late final SocketIOService _socketService;
+
+  @override
+  void initState() {
+    super.initState();
+    _socketService = context.read<SocketIOService>();
+
+    // Escuta atualizações de usuário via WebSocket
+    _socketService.onUserUpdated = (data) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState is Authenticated) {
+        // Verifica se o usuário atualizado é o atual
+        if (data['id'] == authState.user.id) {
+          print('🔄 Perfil atualizado via WebSocket: $data');
+          // Recarrega as informações do usuário
+          context.read<AuthBloc>().add(const CheckAuthenticationEvent());
+        }
+      }
+    };
+
+    _socketService.onUserRemoved = (userId) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState is Authenticated) {
+        // Verifica se o usuário removido é o atual
+        if (userId == authState.user.id) {
+          print('❌ Usuário removido via WebSocket');
+          // Desloga o usuário
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sua conta foi removida'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          context.read<AuthBloc>().add(const SignOutRequested());
+        }
+      }
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,17 +144,18 @@ class MorePage extends StatelessWidget {
 
             // Seção: Conta
             _buildSectionHeader(context, 'Minha Conta'),
-           _buildMenuItem(
-                context,
-                icon: Icons.person_outline,
-                title: 'Editar Perfil',
-                subtitle: 'Alterar nome e informações',
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const EditProfilePage()),
-                  );
-                },
-              ),
+            _buildMenuItem(
+              context,
+              icon: Icons.person_outline,
+              title: 'Editar Perfil',
+              subtitle: 'Alterar nome e informações',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) => const EditProfilePage()),
+                );
+              },
+            ),
             _buildMenuItem(
               context,
               icon: Icons.lock_outline,

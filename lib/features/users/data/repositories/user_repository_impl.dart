@@ -6,47 +6,135 @@ import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_remote_datasource.dart';
 import '../models/user_model.dart';
 
-
 class UserRepositoryImpl implements UserRepository {
-final UserRemoteDataSource remoteDataSource;
+  final UserRemoteDataSource remoteDataSource;
 
+  UserRepositoryImpl({required this.remoteDataSource});
 
-UserRepositoryImpl({required this.remoteDataSource});
+  @override
+  Future<Either<Failure, User>> getUser(String id) async {
+    try {
+      final userModel = await remoteDataSource.getUser(id);
+      return Right(userModel);
+    } on NotFoundException catch (e) {
+      return Left(NotFoundFailure(e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(UnauthorizedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure('Unexpected error: $e'));
+    }
+  }
 
+  @override
+  Future<Either<Failure, User>> getProfile() async {
+    try {
+      final userModel = await remoteDataSource.getProfile();
+      return Right(userModel);
+    } on UnauthorizedException catch (e) {
+      return Left(UnauthorizedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure('Unexpected error: $e'));
+    }
+  }
 
-@override
-Future<Either<Failure, User>> getUser(String id) async {
-try {
-final userModel = await remoteDataSource.getUser(id);
-return Right(userModel);
-} on NotFoundException catch (e) {
-return Left(NotFoundFailure(e.message));
-} on ServerException catch (e) {
-return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
-} on NetworkException catch (e) {
-return Left(NetworkFailure(e.message));
-} catch (e) {
-return Left(UnexpectedFailure('Unexpected error: \$e'));
-}
-}
+  @override
+  Future<Either<Failure, User>> updateUser(String id, User user) async {
+    try {
+      final model = UserModel.fromEntity(user);
+      final updated = await remoteDataSource.updateUser(id, model);
+      return Right(updated);
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on NotFoundException catch (e) {
+      return Left(NotFoundFailure(e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(UnauthorizedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure('Unexpected error: $e'));
+    }
+  }
 
+  @override
+  Future<Either<Failure, User>> updateProfile(User user) async {
+    try {
+      final model = UserModel.fromEntity(user);
+      final updated = await remoteDataSource.updateProfile(model);
+      return Right(updated);
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(UnauthorizedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure('Unexpected error: $e'));
+    }
+  }
 
-@override
-Future<Either<Failure, User>> updateUser(String id, User user) async {
-try {
-final model = UserModel.fromEntity(user);
-final updated = await remoteDataSource.updateUser(id, model);
-return Right(updated);
-} on ValidationException catch (e) {
-return Left(ValidationFailure(message: e.message));
-} on NotFoundException catch (e) {
-return Left(NotFoundFailure(e.message));
-} on ServerException catch (e) {
-return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
-} on NetworkException catch (e) {
-return Left(NetworkFailure(e.message));
-} catch (e) {
-return Left(UnexpectedFailure('Unexpected error: \$e'));
-}
-}
+  @override
+  Future<Either<Failure, void>> changePassword(
+      String oldPassword, String newPassword) async {
+    try {
+      await remoteDataSource.changePassword(oldPassword, newPassword);
+      return const Right(null);
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(UnauthorizedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteUser(String id) async {
+    try {
+      await remoteDataSource.deleteUser(id);
+      return const Right(null);
+    } on NotFoundException catch (e) {
+      return Left(NotFoundFailure(e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(UnauthorizedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<User>>> getAllUsers() async {
+    try {
+      final users = await remoteDataSource.getAllUsers();
+      return Right(users);
+    } on UnauthorizedException catch (e) {
+      return Left(UnauthorizedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnexpectedFailure('Unexpected error: $e'));
+    }
+  }
 }

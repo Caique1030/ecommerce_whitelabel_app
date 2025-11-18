@@ -6,6 +6,12 @@ class SocketIOService {
   IO.Socket? _socket;
   final SharedPreferences sharedPreferences;
   String? _currentWhitelabelId;
+  String? _currentUserId;
+  String? _currentDomain;
+
+  // Callbacks para eventos de usuários
+  Function(dynamic)? onUserUpdated;
+  Function(String)? onUserRemoved;
 
   SocketIOService({required this.sharedPreferences});
 
@@ -56,9 +62,18 @@ class SocketIOService {
       print('✅ Conectado ao Socket.IO com sucesso!');
       print('📦 Dados de conexão: $data');
 
-      if (data != null && data['whitelabelId'] != null) {
+      if (data != null) {
         _currentWhitelabelId = data['whitelabelId'];
+        _currentUserId = data['userId'];
+        _currentDomain = data['domain'];
+
         print('🏪 WhitelabelID: $_currentWhitelabelId');
+        print('👤 UserID: $_currentUserId');
+        print('🌐 Domain: $_currentDomain');
+
+        if (data['rooms'] != null) {
+          print('🚪 Rooms: ${data['rooms']}');
+        }
       }
     });
 
@@ -74,72 +89,42 @@ class SocketIOService {
 
     _socket!.onDisconnect((_) {
       print('❌ Socket desconectado');
+      _currentWhitelabelId = null;
+      _currentUserId = null;
+      _currentDomain = null;
     });
 
     _socket!.onError((error) {
       print('❌ Erro no socket: $error');
     });
 
-    // === EVENTOS DE PRODUTOS ===
+    // === EVENTOS DE USUÁRIOS ===
 
-    _socket!.on('product:created', (data) {
-      print('🆕 Novo produto criado: $data');
-      _handleProductCreated(data);
+    _socket!.on('user:updated', (data) {
+      print('🔄 Usuário atualizado: $data');
+      _handleUserUpdated(data);
     });
 
-    _socket!.on('product:updated', (data) {
-      print('🔄 Produto atualizado: $data');
-      _handleProductUpdated(data);
-    });
-
-    _socket!.on('product:removed', (data) {
-      print('🗑️ Produto removido: $data');
-      _handleProductRemoved(data);
-    });
-
-    // === EVENTOS DE FORNECEDORES ===
-
-    _socket!.on('supplier:created', (data) {
-      print('🆕 Novo fornecedor criado: $data');
-      _handleSupplierCreated(data);
-    });
-
-    _socket!.on('supplier:updated', (data) {
-      print('🔄 Fornecedor atualizado: $data');
-      _handleSupplierUpdated(data);
-    });
-
-    _socket!.on('supplier:removed', (data) {
-      print('🗑️ Fornecedor removido: $data');
-      _handleSupplierRemoved(data);
+    _socket!.on('user:removed', (data) {
+      print('🗑️ Usuário removido: $data');
+      _handleUserRemoved(data);
     });
   }
 
   // === HANDLERS DE EVENTOS ===
 
-  void _handleProductCreated(dynamic data) {
-    // Implemente a lógica para atualizar a UI quando um produto é criado
-    // Por exemplo: adicionar ao BLoC ou notificar listeners
+  void _handleUserUpdated(dynamic data) {
+    if (onUserUpdated != null) {
+      onUserUpdated!(data);
+    }
   }
 
-  void _handleProductUpdated(dynamic data) {
-    // Implemente a lógica para atualizar a UI quando um produto é atualizado
-  }
-
-  void _handleProductRemoved(dynamic data) {
-    // Implemente a lógica para atualizar a UI quando um produto é removido
-  }
-
-  void _handleSupplierCreated(dynamic data) {
-    // Implemente a lógica para quando um fornecedor é criado
-  }
-
-  void _handleSupplierUpdated(dynamic data) {
-    // Implemente a lógica para quando um fornecedor é atualizado
-  }
-
-  void _handleSupplierRemoved(dynamic data) {
-    // Implemente a lógica para quando um fornecedor é removido
+  void _handleUserRemoved(dynamic data) {
+    if (data != null && data['id'] != null) {
+      if (onUserRemoved != null) {
+        onUserRemoved!(data['id']);
+      }
+    }
   }
 
   /// Emite um evento personalizado
@@ -165,6 +150,8 @@ class SocketIOService {
       _socket!.dispose();
       _socket = null;
       _currentWhitelabelId = null;
+      _currentUserId = null;
+      _currentDomain = null;
     }
   }
 
@@ -173,4 +160,10 @@ class SocketIOService {
 
   /// Obtém o whitelabelId atual
   String? get currentWhitelabelId => _currentWhitelabelId;
+
+  /// Obtém o userId atual
+  String? get currentUserId => _currentUserId;
+
+  /// Obtém o domain atual
+  String? get currentDomain => _currentDomain;
 }

@@ -1,3 +1,5 @@
+import 'package:flutter_ecommerce/core/errors/failures.dart';
+
 /// Custom exceptions for the application
 class ServerException implements Exception {
   final String message;
@@ -53,4 +55,17 @@ class NotFoundException implements Exception {
 
   @override
   String toString() => 'NotFoundException: $message';
+}
+
+class UnauthorizedException implements Exception {
+  final String message;
+
+  UnauthorizedException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class UnauthorizedFailure extends Failure {
+  UnauthorizedFailure(String message) : super(message);
 }

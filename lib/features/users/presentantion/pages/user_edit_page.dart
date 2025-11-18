@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
+import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_bloc.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_event.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_state.dart';
-
-import '../../../auth/domain/entities/user.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({Key? key}) : super(key: key);
@@ -53,10 +52,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           name: _nameController.text,
           email: _emailController.text,
         );
-
         context.read<UserBloc>().add(
-          UpdateUserEvent(id: authState.user.id, user: updatedUser),
-        );
+              UpdateUserEvent(id: authState.user.id, user: updatedUser),
+            );
       }
     }
   }
@@ -138,7 +136,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         if (value == null || value.isEmpty) {
                           return 'Por favor, insira seu email';
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value)) {
                           return 'Por favor, insira um email válido';
                         }
                         return null;
