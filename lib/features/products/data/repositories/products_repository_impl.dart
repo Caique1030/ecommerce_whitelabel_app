@@ -12,7 +12,6 @@ class ProductsRepositoryImpl implements ProductsRepository {
   final ProductRemoteDataSource remoteDataSource;
   final SharedPreferences sharedPreferences;
 
-  // ✅ Chaves de cache
   static const String _cachedProductsKey = 'CACHED_PRODUCTS';
   static const String _cacheTimestampKey = 'CACHE_TIMESTAMP';
   static const int _cacheValidityHours = 24;
@@ -41,7 +40,26 @@ class ProductsRepositoryImpl implements ProductsRepository {
           maxPrice != null ||
           supplierId != null;
 
-      // ✅ Se não tem filtros, tenta usar cache
+      // ✅ Se tem filtros, busca do cache e filtra localmente
+      if (hasFilters) {
+        final cachedProducts = await _getCachedProducts();
+
+        if (cachedProducts.isNotEmpty) {
+          // Aplica filtros localmente
+          final filteredProducts = _applyLocalFilters(
+            cachedProducts,
+            name: name,
+            category: category,
+            minPrice: minPrice,
+            maxPrice: maxPrice,
+            supplierId: supplierId,
+          );
+
+          return Right(filteredProducts);
+        }
+      }
+
+      // ✅ Se não tem cache válido ou não tem filtros, busca da API
       if (!hasFilters && await _hasCachedProducts()) {
         final cachedProducts = await _getCachedProducts();
         if (cachedProducts.isNotEmpty) {
@@ -67,16 +85,42 @@ class ProductsRepositoryImpl implements ProductsRepository {
 
       return Right(products);
     } on ServerException catch (e) {
-      // ✅ Erro na API? Retorna cache se existir
+      // ✅ Erro na API? Tenta retornar cache
       final cachedProducts = await _getCachedProducts();
       if (cachedProducts.isNotEmpty) {
+        // Se tem filtros, aplica localmente
+        if (name != null ||
+            category != null ||
+            minPrice != null ||
+            maxPrice != null) {
+          final filtered = _applyLocalFilters(
+            cachedProducts,
+            name: name,
+            category: category,
+            minPrice: minPrice,
+            maxPrice: maxPrice,
+          );
+          return Right(filtered);
+        }
         return Right(cachedProducts);
       }
       return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
-      // ✅ Sem internet? Retorna cache
       final cachedProducts = await _getCachedProducts();
       if (cachedProducts.isNotEmpty) {
+        if (name != null ||
+            category != null ||
+            minPrice != null ||
+            maxPrice != null) {
+          final filtered = _applyLocalFilters(
+            cachedProducts,
+            name: name,
+            category: category,
+            minPrice: minPrice,
+            maxPrice: maxPrice,
+          );
+          return Right(filtered);
+        }
         return Right(cachedProducts);
       }
       return Left(NetworkFailure(e.message));
@@ -85,12 +129,69 @@ class ProductsRepositoryImpl implements ProductsRepository {
     }
   }
 
+  /// ✅ NOVO: Aplica filtros localmente nos produtos em cache
+  List<Product> _applyLocalFilters(
+    List<Product> products, {
+    String? name,
+    String? category,
+    double? minPrice,
+    double? maxPrice,
+    String? supplierId,
+  }) {
+    var filtered = products;
+
+    // Filtro por nome (case insensitive)
+    if (name != null && name.isNotEmpty) {
+      filtered = filtered.where((p) {
+        return p.name.toLowerCase().contains(name.toLowerCase()) ||
+            (p.description?.toLowerCase().contains(name.toLowerCase()) ??
+                false);
+      }).toList();
+    }
+
+    // Filtro por categoria (case insensitive e normalizado)
+    if (category != null && category.isNotEmpty) {
+      filtered = filtered.where((p) {
+        if (p.category == null) return false;
+
+        final productCategory = _normalizeCategory(p.category!);
+        final searchCategory = _normalizeCategory(category);
+
+        return productCategory == searchCategory ||
+            productCategory.contains(searchCategory);
+      }).toList();
+    }
+
+    // Filtro por preço mínimo
+    if (minPrice != null) {
+      filtered = filtered.where((p) => p.price >= minPrice).toList();
+    }
+
+    // Filtro por preço máximo
+    if (maxPrice != null) {
+      filtered = filtered.where((p) => p.price <= maxPrice).toList();
+    }
+
+    // Filtro por fornecedor
+    if (supplierId != null) {
+      filtered = filtered.where((p) => p.supplierId == supplierId).toList();
+    }
+
+    return filtered;
+  }
+
+  /// ✅ NOVO: Normaliza categorias para melhorar as buscas
+  String _normalizeCategory(String category) {
+    return category
+        .toLowerCase()
+        .trim()
+        .replaceAll(RegExp(r'\s+'), ' '); // Remove espaços extras
+  }
+
   @override
   Future<Either<Failure, void>> syncProducts() async {
     try {
-      // ✅ Limpa cache antes de sincronizar
       await _clearCache();
-
       await remoteDataSource.syncProducts();
       return const Right(null);
     } on ServerException catch (e) {
@@ -102,7 +203,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
     }
   }
 
-  // ✅ Métodos privados de cache
+  // ✅ Métodos de cache
   Future<List<Product>> _getCachedProducts() async {
     try {
       final jsonString = sharedPreferences.getString(_cachedProductsKey);
@@ -114,6 +215,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
       final List<dynamic> jsonList = json.decode(jsonString);
       return jsonList.map((json) => ProductModel.fromJson(json)).toList();
     } catch (e) {
+      print('❌ Erro ao ler cache: $e');
       return [];
     }
   }
@@ -129,8 +231,10 @@ class ProductsRepositoryImpl implements ProductsRepository {
         _cacheTimestampKey,
         DateTime.now().millisecondsSinceEpoch,
       );
+
+      print('✅ ${products.length} produtos salvos no cache');
     } catch (e) {
-      // Ignora erro de cache
+      print('❌ Erro ao salvar cache: $e');
     }
   }
 
@@ -151,9 +255,9 @@ class ProductsRepositoryImpl implements ProductsRepository {
   Future<void> _clearCache() async {
     await sharedPreferences.remove(_cachedProductsKey);
     await sharedPreferences.remove(_cacheTimestampKey);
+    print('🗑️ Cache limpo');
   }
 
-  // ...existing code...
   @override
   Future<Either<Failure, Product>> getProductById(String id) async {
     try {

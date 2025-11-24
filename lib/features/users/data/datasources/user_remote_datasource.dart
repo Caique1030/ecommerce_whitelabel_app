@@ -47,11 +47,10 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     } else if (response.statusCode == 404) {
       throw NotFoundException(message: 'User not found');
     } else if (response.statusCode == 401) {
-      throw UnauthorizedException(message: 'Unauthorized');
+      throw UnauthorizedException('Unauthorized');
     } else {
       throw ServerException(
-          message: 'Erro no servidor',
-          statusCode: response.statusCode);
+          message: 'Erro no servidor', statusCode: response.statusCode);
     }
   }
 
@@ -68,8 +67,8 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     } else if (response.statusCode == 401) {
       throw UnauthorizedException('Unauthorized');
     } else {
-      throw ServerException('Erro no servidor',
-          statusCode: response.statusCode);
+      throw ServerException(
+          message: 'Erro no servidor', statusCode: response.statusCode);
     }
   }
 
@@ -86,14 +85,14 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       final jsonMap = json.decode(response.body);
       return UserModel.fromJson(jsonMap);
     } else if (response.statusCode == 400) {
-      throw ValidationException('Dados inválidos');
+      throw ValidationException(message: 'Dados inválidos');
     } else if (response.statusCode == 404) {
-      throw NotFoundException('User not found');
+      throw NotFoundException(message: 'User not found');
     } else if (response.statusCode == 401) {
       throw UnauthorizedException('Unauthorized');
     } else {
-      throw ServerException('Erro no servidor',
-          statusCode: response.statusCode);
+      throw ServerException(
+          message: 'Erro no servidor', statusCode: response.statusCode);
     }
   }
 
@@ -110,12 +109,12 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       final jsonMap = json.decode(response.body);
       return UserModel.fromJson(jsonMap);
     } else if (response.statusCode == 400) {
-      throw ValidationException('Dados inválidos');
+      throw ValidationException(message: 'Dados inválidos');
     } else if (response.statusCode == 401) {
       throw UnauthorizedException('Unauthorized');
     } else {
-      throw ServerException('Erro no servidor',
-          statusCode: response.statusCode);
+      throw ServerException(
+          message: 'Erro no servidor', statusCode: response.statusCode);
     }
   }
 
@@ -136,17 +135,16 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       return;
     } else if (response.statusCode == 400) {
       final error = json.decode(response.body);
-      throw ValidationException(error['message'] ?? 'Dados inválidos');
+      throw ValidationException(message: error['message'] ?? 'Dados inválidos');
     } else if (response.statusCode == 401) {
+      throw UnauthorizedException('Unauthorized');
     } else {
       throw ServerException(
-          message: 'Erro no servidor',
-          statusCode: response.statusCode);
+          message: 'Erro no servidor', statusCode: response.statusCode);
     }
   }
 
   @override
-  Future<void> deleteUser(String id) async {
   Future<void> deleteUser(String id) async {
     final response = await client.delete(
       Uri.parse('$baseUrl/users/$id'),
@@ -156,16 +154,15 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     if (response.statusCode == 200) {
       return;
     } else if (response.statusCode == 404) {
-      throw NotFoundException('User not found');
+      throw NotFoundException(message: 'User not found');
+    } else if (response.statusCode == 401) {
+      throw UnauthorizedException('Unauthorized');
     } else {
       throw ServerException(
-          message: 'Erro no servidor',
-          statusCode: response.statusCode);
+          message: 'Erro no servidor', statusCode: response.statusCode);
     }
   }
 
-  @override
-  Future<List<UserModel>> getAllUsers() async {
   @override
   Future<List<UserModel>> getAllUsers() async {
     final response = await client.get(
@@ -175,13 +172,15 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
+      final users = jsonList
+          .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return users;
+    } else if (response.statusCode == 401) {
+      throw UnauthorizedException('Unauthorized');
     } else {
       throw ServerException(
-          message: 'Erro no servidor',
-          statusCode: response.statusCode);
-    }
-  }
-}
+          message: 'Erro no servidor', statusCode: response.statusCode);
     }
   }
 }

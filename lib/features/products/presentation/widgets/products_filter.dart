@@ -16,7 +16,10 @@ class _ProductFilterState extends State<ProductFilter> {
   double? _minPrice;
   double? _maxPrice;
 
-  // Lista de categorias exemplo - você pode carregar isso dinamicamente
+  final _minPriceController = TextEditingController();
+  final _maxPriceController = TextEditingController();
+
+  // ✅ Lista de categorias normalizadas (baseada nos seus dados reais)
   final List<String> _categories = [
     'Eletrônicos',
     'Roupas',
@@ -24,31 +27,84 @@ class _ProductFilterState extends State<ProductFilter> {
     'Casa',
     'Esportes',
     'Beleza',
-  ];
+    'Brinquedos',
+    'Alimentos',
+    // Categorias do fornecedor brasileiro
+    'Grocery',
+    'Tools',
+    'Outdoors',
+    'Games',
+    'Books',
+    'Computers',
+    'Music',
+    'Clothing',
+    'Health',
+    'Garden',
+    'Shoes',
+    'Baby',
+    'Kids',
+    'Home',
+    'Jewelery',
+    'Toys',
+    'Industrial',
+    'Movies',
+    'Beauty',
+    'Electronics',
+    'Sports',
+  ]..sort(); // Ordena alfabeticamente
 
   @override
   void dispose() {
     _searchController.dispose();
+    _minPriceController.dispose();
+    _maxPriceController.dispose();
     super.dispose();
   }
 
   void _applyFilters() {
+    // Parse dos valores de preço
+    _minPrice = _minPriceController.text.isNotEmpty
+        ? double.tryParse(_minPriceController.text.replaceAll(',', '.'))
+        : null;
+    _maxPrice = _maxPriceController.text.isNotEmpty
+        ? double.tryParse(_maxPriceController.text.replaceAll(',', '.'))
+        : null;
+
+    // Validação básica
+    if (_minPrice != null && _maxPrice != null && _minPrice! > _maxPrice!) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preço mínimo não pode ser maior que o máximo'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    print('🔍 Aplicando filtros:');
+    print('   - Busca: ${_searchController.text}');
+    print('   - Categoria: $_selectedCategory');
+    print('   - Min: $_minPrice');
+    print('   - Max: $_maxPrice');
+
     context.read<ProductsBloc>().add(
-      FilterProductsEvent(
-        searchQuery: _searchController.text.isNotEmpty
-            ? _searchController.text
-            : null,
-        category: _selectedCategory,
-        minPrice: _minPrice,
-        maxPrice: _maxPrice,
-      ),
-    );
+          FilterProductsEvent(
+            searchQuery: _searchController.text.isNotEmpty
+                ? _searchController.text
+                : null,
+            category: _selectedCategory,
+            minPrice: _minPrice,
+            maxPrice: _maxPrice,
+          ),
+        );
     Navigator.of(context).pop();
   }
 
   void _clearFilters() {
     setState(() {
       _searchController.clear();
+      _minPriceController.clear();
+      _maxPriceController.clear();
       _selectedCategory = null;
       _minPrice = null;
       _maxPrice = null;
@@ -66,6 +122,10 @@ class _ProductFilterState extends State<ProductFilter> {
       expand: false,
       builder: (context, scrollController) {
         return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -84,13 +144,22 @@ class _ProductFilterState extends State<ProductFilter> {
               const SizedBox(height: 16),
 
               // Título
-              Text(
-                'Filtros',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Filtros',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  TextButton(
+                    onPressed: _clearFilters,
+                    child: const Text('Limpar tudo'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               Expanded(
                 child: ListView(
@@ -101,23 +170,35 @@ class _ProductFilterState extends State<ProductFilter> {
                       controller: _searchController,
                       decoration: const InputDecoration(
                         labelText: 'Buscar produto',
+                        hintText: 'Nome ou descrição',
                         prefixIcon: Icon(Icons.search),
                         border: OutlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
                     // Categoria
+                    Text(
+                      'Categoria',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       value: _selectedCategory,
                       decoration: const InputDecoration(
-                        labelText: 'Categoria',
                         border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
+                      hint: const Text('Selecione uma categoria'),
                       items: [
                         const DropdownMenuItem(
                           value: null,
-                          child: Text('Todas'),
+                          child: Text('Todas as categorias'),
                         ),
                         ..._categories.map((category) {
                           return DropdownMenuItem(
@@ -132,44 +213,56 @@ class _ProductFilterState extends State<ProductFilter> {
                         });
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
                     // Faixa de preço
                     Text(
                       'Faixa de Preço',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: _minPriceController,
                             decoration: const InputDecoration(
-                              labelText: 'Mín',
+                              labelText: 'Mínimo',
                               prefixText: 'R\$ ',
                               border: OutlineInputBorder(),
+                              hintText: '0.00',
                             ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              _minPrice = double.tryParse(value);
-                            },
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: TextField(
+                            controller: _maxPriceController,
                             decoration: const InputDecoration(
-                              labelText: 'Máx',
+                              labelText: 'Máximo',
                               prefixText: 'R\$ ',
                               border: OutlineInputBorder(),
+                              hintText: '9999.00',
                             ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              _maxPrice = double.tryParse(value);
-                            },
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Digite valores sem pontos ou vírgulas (ex: 100 ou 100.50)',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                            fontStyle: FontStyle.italic,
+                          ),
                     ),
                   ],
                 ),
@@ -183,6 +276,9 @@ class _ProductFilterState extends State<ProductFilter> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _clearFilters,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
                       child: const Text('Limpar'),
                     ),
                   ),
@@ -190,7 +286,10 @@ class _ProductFilterState extends State<ProductFilter> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _applyFilters,
-                      child: const Text('Aplicar'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Aplicar Filtros'),
                     ),
                   ),
                 ],
