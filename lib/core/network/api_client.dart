@@ -16,21 +16,29 @@ class ApiClient {
     return sharedPreferences.getString(AppConstants.accessTokenKey);
   }
 
+  /// Obtém o domínio atual de forma consistente
   String get _domain {
     try {
       final host = Uri.base.host;
+      print('🌐 ApiClient - Domínio detectado (Uri.base.host): $host');
 
-      print('🌐 Domínio detectado: $host');
+      // Limpa o host removendo porta se existir
+      final cleanHost = AppConstants.getCleanDomain(host);
+      print('🧹 ApiClient - Host limpo: $cleanHost');
 
-      // Identifica qual cliente baseado no domínio
-      if (host == 'devnology.com') {
+      // Usa a mesma lógica do AppConstants
+      if (AppConstants.isDevnology(cleanHost)) {
+        print('✅ ApiClient - Cliente identificado: devnology.com');
         return 'devnology.com';
-      } else if (host == 'in8.com') {
+      } else if (AppConstants.isIn8(cleanHost)) {
+        print('✅ ApiClient - Cliente identificado: in8.com');
         return 'in8.com';
-      } else if (host == 'localhost' || host == '127.0.0.1') {
+      } else if (AppConstants.isLocalhost(cleanHost)) {
+        print('✅ ApiClient - Cliente identificado: localhost');
         return 'localhost';
       }
 
+      print('⚠️ ApiClient - Domínio não reconhecido, usando localhost');
       return 'localhost';
     } catch (e) {
       print('❌ Erro ao detectar domínio: $e');
@@ -49,15 +57,13 @@ class ApiClient {
       final token = await _token;
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
-        print(
-            '🔑 Token adicionado ao header: ${token.substring(0, 20)}...'); // 🔍 LOG
+        print('🔑 Token adicionado ao header: ${token.substring(0, 20)}...');
       } else {
-        print(
-            '⚠️ AVISO: Requisição autenticada mas token não encontrado!'); // 🔍 LOG
+        print('⚠️ AVISO: Requisição autenticada mas token não encontrado!');
       }
     }
 
-    print('📨 Headers: $headers'); // 🔍 LOG
+    print('📨 Headers enviados: $headers');
     return headers;
   }
 
@@ -70,6 +76,8 @@ class ApiClient {
       final uri = Uri.parse(
         '$_baseUrl$endpoint',
       ).replace(queryParameters: queryParameters);
+
+      print('🌐 GET Request: $uri');
 
       final headers = await _getHeaders(includeAuth: requiresAuth);
 
@@ -90,6 +98,9 @@ class ApiClient {
   }) async {
     try {
       final uri = Uri.parse('$_baseUrl$endpoint');
+      print('🌐 POST Request: $uri');
+      print('📦 Body: $body');
+
       final headers = await _getHeaders(includeAuth: requiresAuth);
 
       final response = await httpClient
@@ -113,6 +124,9 @@ class ApiClient {
   }) async {
     try {
       final uri = Uri.parse('$_baseUrl$endpoint');
+      print('🌐 PATCH Request: $uri');
+      print('📦 Body: $body');
+
       final headers = await _getHeaders(includeAuth: requiresAuth);
 
       final response = await httpClient
@@ -132,6 +146,8 @@ class ApiClient {
   Future<dynamic> delete(String endpoint, {bool requiresAuth = true}) async {
     try {
       final uri = Uri.parse('$_baseUrl$endpoint');
+      print('🌐 DELETE Request: $uri');
+
       final headers = await _getHeaders(includeAuth: requiresAuth);
 
       final response = await httpClient
@@ -146,6 +162,7 @@ class ApiClient {
 
   dynamic _handleResponse(http.Response response) {
     final statusCode = response.statusCode;
+    print('📥 Response Status: $statusCode');
 
     if (statusCode >= 200 && statusCode < 300) {
       if (response.body.isEmpty) {
@@ -178,6 +195,7 @@ class ApiClient {
   }
 
   Exception _handleError(dynamic error) {
+    print('❌ Erro na requisição: $error');
     if (error is Exception) {
       return error;
     } else {
