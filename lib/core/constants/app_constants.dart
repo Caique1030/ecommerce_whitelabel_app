@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 class AppConstants {
   // API Configuration
   static const String baseUrl = 'http://localhost:3000/api';
@@ -35,4 +37,25 @@ class AppConstants {
     'devnology': {'primary': '#2ecc71', 'secondary': '#27ae60'},
     'in8': {'primary': '#8e44ad', 'secondary': '#9b59b6'},
   };
+
+  static Map<String, dynamic>? getConfigByHost(String host) {
+  final domainKey = clientDomains.keys.firstWhere(
+    (key) => host.contains(clientDomains[key]!),
+    orElse: () => 'localhost',
+  );
+
+  final colors = clientColors[domainKey]!;
+
+  return {
+    'primaryColor': _hexToColor(colors['primary']!),
+    'secondaryColor': _hexToColor(colors['secondary']!),
+  };
+}
+
+static Color _hexToColor(String hex) {
+  hex = hex.replaceAll('#', '');
+  if (hex.length == 6) hex = 'FF$hex';
+  return Color(int.parse(hex, radix: 16));
+}
+
 }
