@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/cart_bloc.dart';
+import '../bloc/cart_event.dart';
+import '../bloc/cart_state.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -8,16 +12,6 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  // Lista temporária de itens no carrinho
-  // TODO: Implementar gerenciamento de estado do carrinho (Bloc/Provider)
-  final List<Map<String, dynamic>> _cartItems = [];
-
-  double get _totalPrice {
-    return _cartItems.fold(0, (sum, item) {
-      return sum + (item['price'] * item['quantity']);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,8 +19,26 @@ class _CartPageState extends State<CartPage> {
         title: const Text('Meu Carrinho'),
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: _cartItems.isEmpty ? _buildEmptyCart() : _buildCartItems(),
-      bottomNavigationBar: _cartItems.isNotEmpty ? _buildCheckoutButton() : null,
+      body: BlocBuilder<CartBloc, CartState>(
+        builder: (context, state) {
+          if (state.items.isEmpty) {
+            return _buildEmptyCart();
+          }
+          return _buildCartItems(state);
+        },
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BlocBuilder<CartBloc, CartState>(
+      builder: (context, state) {
+        if (state.items.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return _buildCheckoutButton(state);
+      },
     );
   }
 
@@ -61,7 +73,7 @@ class _CartPageState extends State<CartPage> {
           ElevatedButton.icon(
             onPressed: () {
               // Voltar para a página inicial
-              // O IndexedStack já gerencia isso através do BottomNavigationBar
+              Navigator.pop(context);
             },
             icon: const Icon(Icons.shopping_bag),
             label: const Text('Continuar Comprando'),
@@ -74,37 +86,40 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildCartItems() {
+  Widget _buildCartItems(CartState state) {
     return Column(
       children: [
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: _cartItems.length,
+            itemCount: state.items.length,
             itemBuilder: (context, index) {
-              final item = _cartItems[index];
+              final item = state.items[index];
               return _CartItemCard(
                 item: item,
                 onRemove: () {
-                  setState(() {
-                    _cartItems.removeAt(index);
-                  });
+                  context.read<CartBloc>().add(
+                    RemoveFromCartEvent(productId: item.product.id),
+                  );
                 },
                 onQuantityChanged: (newQuantity) {
-                  setState(() {
-                    _cartItems[index]['quantity'] = newQuantity;
-                  });
+                  context.read<CartBloc>().add(
+                    UpdateQuantityEvent(
+                      productId: item.product.id,
+                      quantity: newQuantity,
+                    ),
+                  );
                 },
               );
             },
           ),
         ),
-        _buildSummary(),
+        _buildSummary(state),
       ],
     );
   }
 
-  Widget _buildSummary() {
+  Widget _buildSummary(CartState state) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -119,11 +134,11 @@ class _CartPageState extends State<CartPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Subtotal (${_cartItems.length} ${_cartItems.length == 1 ? 'item' : 'itens'})',
+                'Subtotal (${state.totalItems} ${state.totalItems == 1 ? 'item' : 'itens'})',
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
               Text(
-                'R\$ ${_totalPrice.toStringAsFixed(2)}',
+                'R\$ ${state.totalPrice.toStringAsFixed(2)}',
                 style: const TextStyle(fontSize: 14),
               ),
             ],
@@ -158,7 +173,7 @@ class _CartPageState extends State<CartPage> {
                 ),
               ),
               Text(
-                'R\$ ${_totalPrice.toStringAsFixed(2)}',
+                'R\$ ${state.totalPrice.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -172,7 +187,7 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildCheckoutButton() {
+  Widget _buildCheckoutButton(CartState state) {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -200,10 +215,8 @@ class _CartPageState extends State<CartPage> {
   }
 }
 
-
-
 class _CartItemCard extends StatelessWidget {
-  final Map<String, dynamic> item;
+  final CartItem item;
   final VoidCallback onRemove;
   final Function(int) onQuantityChanged;
 
@@ -233,9 +246,9 @@ class _CartItemCard extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: item['image'] != null
+                child: item.product.image != null
                     ? Image.network(
-                        item['image'],
+                        item.product.image!,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => const Icon(Icons.image),
                       )
@@ -250,7 +263,7 @@ class _CartItemCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item['name'],
+                    item.product.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -260,7 +273,7 @@ class _CartItemCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'R\$ ${(item['price'] as double).toStringAsFixed(2)}',
+                    'R\$ ${item.product.price.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -282,7 +295,7 @@ class _CartItemCard extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.remove, size: 16),
                               onPressed: () {
-                                final currentQty = item['quantity'] as int;
+                                final currentQty = item.quantity;
                                 if (currentQty > 1) {
                                   onQuantityChanged(currentQty - 1);
                                 }
@@ -294,7 +307,7 @@ class _CartItemCard extends StatelessWidget {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 12),
                               child: Text(
-                                '${item['quantity']}',
+                                '${item.quantity}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -303,7 +316,7 @@ class _CartItemCard extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.add, size: 16),
                               onPressed: () {
-                                final currentQty = item['quantity'] as int;
+                                final currentQty = item.quantity;
                                 onQuantityChanged(currentQty + 1);
                               },
                               padding: const EdgeInsets.all(4),

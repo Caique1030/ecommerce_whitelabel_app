@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_bloc.dart';
+import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_event.dart';
 import '../../domain/entities/product.dart';
 
 class ProductDetailPage extends StatelessWidget {
@@ -173,27 +176,31 @@ class ProductDetailPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Produto adicionado ao carrinho!'),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: const Text(
-              'Adicionar ao Carrinho',
-              style: TextStyle(fontSize: 16),
-            ),
+     // No ProductDetailPage, substitua o botão no bottomNavigationBar:
+bottomNavigationBar: SafeArea(
+  child: Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: ElevatedButton(
+      onPressed: () {
+        // Adiciona o produto ao carrinho
+        context.read<CartBloc>().add(AddToCartEvent(product: product));
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Produto adicionado ao carrinho!'),
           ),
-        ),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
       ),
+      child: const Text(
+        'Adicionar ao Carrinho',
+        style: TextStyle(fontSize: 16),
+      ),
+    ),
+  ),
+),
     );
   }
 

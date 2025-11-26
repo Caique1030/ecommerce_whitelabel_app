@@ -19,6 +19,7 @@ import 'package:flutter_ecommerce/features/products/domain/usecases/filter_produ
 import 'package:flutter_ecommerce/features/products/domain/usecases/get_products.dart';
 import 'package:flutter_ecommerce/features/products/domain/usecases/get_products_by_id.dart';
 import 'package:flutter_ecommerce/features/products/domain/usecases/sync_product.dart';
+import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_bloc.dart';
 import 'package:flutter_ecommerce/features/products/presentation/bloc/products_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -58,6 +59,8 @@ Future<void> init() async {
       syncProducts: sl(),
     ),
   );
+
+  sl.registerFactory(() => CartBloc());
 
   // Use cases
   sl.registerLazySingleton(() => GetProducts(sl()));

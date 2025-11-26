@@ -5,6 +5,8 @@ import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dar
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/pages/register_page.dart';
 import 'package:flutter_ecommerce/features/injection_container.dart' as di;
+import 'package:flutter_ecommerce/features/injection_container.dart';
+import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -44,6 +46,7 @@ class MyApp extends StatelessWidget {
                     di.sl<AuthBloc>()..add(CheckAuthenticationEvent()),
               ),
               BlocProvider<ProductsBloc>(create: (_) => di.sl<ProductsBloc>()),
+              BlocProvider(create: (context) => sl<CartBloc>()),
             ],
 child: MaterialApp(
   title: whitelabelProvider.client?.name ?? 'E-Commerce',
