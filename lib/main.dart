@@ -5,8 +5,6 @@ import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dar
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/pages/register_page.dart';
 import 'package:flutter_ecommerce/features/injection_container.dart' as di;
-import 'package:flutter_ecommerce/features/injection_container.dart';
-import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -46,8 +44,9 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => CartProvider(),
+        // ✅ CRÍTICO: Usar a MESMA instância do Service Locator
+        ChangeNotifierProvider<CartProvider>.value(
+          value: di.sl<CartProvider>(),
         ),
         ChangeNotifierProvider(
           create: (_) => di.sl<WhitelabelProvider>()..loadClientConfig(),

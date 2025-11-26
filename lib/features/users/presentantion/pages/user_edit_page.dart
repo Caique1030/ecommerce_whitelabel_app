@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_bloc.dart';
@@ -17,24 +18,24 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-  late TextEditingController _phoneController;
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  bool _isInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    // Inicializa os controllers com os dados atuais do usuário
-    final authState = context.read<AuthBloc>().state;
-    if (authState is Authenticated) {
-      _nameController = TextEditingController(text: authState.user.name);
-      _emailController = TextEditingController(text: authState.user.email);
-      _phoneController =
-          TextEditingController(); // Phone não está em User do auth
-    } else {
-      _nameController = TextEditingController();
-      _emailController = TextEditingController();
-      _phoneController = TextEditingController();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Inicializa os controllers apenas uma vez
+    if (!_isInitialized) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState is Authenticated) {
+        _nameController.text = authState.user.name;
+        _emailController.text = authState.user.email;
+        // Phone não está disponível no User do auth, mas pode ser carregado
+      }
+      _isInitialized = true;
     }
   }
 
@@ -46,63 +47,94 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
-  void _updateProfile() {
-    if (_formKey.currentState!.validate()) {
-      final authState = context.read<AuthBloc>().state;
-      if (authState is Authenticated) {
-        final updatedUser = User(
-          id: authState.user.id,
-          name: _nameController.text,
-          email: _emailController.text,
-        );
-        context.read<UserBloc>().add(
-              UpdateUserEvent(id: authState.user.id, user: updatedUser),
-            );
-      }
+  Future<void> _updateProfile(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! Authenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Você precisa estar autenticado'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final updatedUser = User(
+      id: authState.user.id,
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim().isEmpty
+          ? null
+          : _phoneController.text.trim(),
+    );
+
+    // Usa UpdateProfileEvent ao invés de UpdateUserEvent
+    context.read<UserBloc>().add(
+          UpdateProfileEvent(user: updatedUser),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    // ✅ SOLUÇÃO: Envolve a página com BlocProvider
     return BlocProvider<UserBloc>(
       create: (_) => di.sl<UserBloc>(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Editar Perfil'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.save),
-              onPressed: _updateProfile,
-            ),
-          ],
+          backgroundColor: Theme.of(context).primaryColor,
         ),
-        body: BlocListener<UserBloc, UserState>(
+        body: BlocConsumer<UserBloc, UserState>(
           listener: (context, state) {
             if (state is UserUpdated) {
+              // Atualiza o AuthBloc com os novos dados
+              context.read<AuthBloc>().add(const CheckAuthenticationEvent());
+
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Perfil atualizado com sucesso!')),
+                const SnackBar(
+                  content: Text('Perfil atualizado com sucesso!'),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 2),
+                ),
               );
-              Navigator.of(context).pop();
+
+              // Aguarda um pouco antes de voltar para garantir que o AuthBloc atualizou
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
+              });
             } else if (state is UserError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                  duration: const Duration(seconds: 3),
+                ),
               );
             }
           },
-          child: BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, authState) {
-              if (authState is! Authenticated) {
-                return const Center(child: Text('Usuário não autenticado'));
-              }
+          builder: (context, userState) {
+            return BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                if (authState is! Authenticated) {
+                  return const Center(
+                    child: Text('Você precisa estar autenticado'),
+                  );
+                }
 
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
+                final isLoading = userState is UserLoading;
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
                     child: Column(
                       children: [
+                        // Avatar do usuário
                         CircleAvatar(
                           radius: 50,
                           backgroundColor: Theme.of(context).primaryColor,
@@ -117,73 +149,136 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Editar Informações',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Campo Nome
                         TextFormField(
                           controller: _nameController,
+                          enabled: !isLoading,
                           decoration: const InputDecoration(
-                            labelText: 'Nome',
+                            labelText: 'Nome Completo',
+                            hintText: 'Digite seu nome completo',
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.person),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (value == null || value.trim().isEmpty) {
                               return 'Por favor, insira seu nome';
+                            }
+                            if (value.trim().length < 3) {
+                              return 'Nome deve ter pelo menos 3 caracteres';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
+
+                        // Campo Email
                         TextFormField(
                           controller: _emailController,
+                          enabled: !isLoading,
                           decoration: const InputDecoration(
                             labelText: 'Email',
+                            hintText: 'seu@email.com',
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.email),
                           ),
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (value == null || value.trim().isEmpty) {
                               return 'Por favor, insira seu email';
                             }
                             if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                .hasMatch(value)) {
+                                .hasMatch(value.trim())) {
                               return 'Por favor, insira um email válido';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
+
+                        // Campo Telefone
                         TextFormField(
                           controller: _phoneController,
+                          enabled: !isLoading,
                           decoration: const InputDecoration(
                             labelText: 'Telefone (opcional)',
+                            hintText: '(00) 00000-0000',
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.phone),
                           ),
                           keyboardType: TextInputType.phone,
                         ),
-                        const SizedBox(height: 24),
-                        BlocBuilder<UserBloc, UserState>(
-                          builder: (context, state) {
-                            if (state is UserLoading) {
-                              return const CircularProgressIndicator();
-                            }
-                            return ElevatedButton(
-                              onPressed: _updateProfile,
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
+                        const SizedBox(height: 32),
+
+                        // Botão Salvar
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton.icon(
+                            onPressed: isLoading
+                                ? null
+                                : () => _updateProfile(context),
+                            icon: isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(Icons.save),
+                            label: Text(
+                              isLoading ? 'Salvando...' : 'Salvar Alterações',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text('Salvar Alterações'),
-                            );
-                          },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Botão Cancelar
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: OutlinedButton.icon(
+                            onPressed: isLoading
+                                ? null
+                                : () => Navigator.of(context).pop(),
+                            icon: const Icon(Icons.cancel),
+                            label: const Text(
+                              'Cancelar',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              );
-            },
-          ),
+                );
+              },
+            );
+          },
         ),
       ),
     );

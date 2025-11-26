@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/cart_bloc.dart';
-import '../bloc/cart_event.dart';
-import '../bloc/cart_state.dart';
-=======
 import 'package:flutter_ecommerce/features/products/domain/usecases/cart_provider.dart';
 import 'package:provider/provider.dart';
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -17,34 +10,6 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-<<<<<<< HEAD
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meu Carrinho'),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-      body: BlocBuilder<CartBloc, CartState>(
-        builder: (context, state) {
-          if (state.items.isEmpty) {
-            return _buildEmptyCart();
-          }
-          return _buildCartItems(state);
-        },
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BlocBuilder<CartBloc, CartState>(
-      builder: (context, state) {
-        if (state.items.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return _buildCheckoutButton(state);
-=======
   bool _isProcessing = false;
 
   @override
@@ -68,7 +33,6 @@ class _CartPageState extends State<CartPage> {
           bottomNavigationBar:
               !cart.isEmpty ? _buildCheckoutButton(cart) : null,
         );
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
       },
     );
   }
@@ -103,13 +67,8 @@ class _CartPageState extends State<CartPage> {
           const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: () {
-<<<<<<< HEAD
-              // Voltar para a página inicial
-              Navigator.pop(context);
-=======
               // Volta para a página inicial através do Navigator
               Navigator.of(context).popUntil((route) => route.isFirst);
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
             },
             icon: const Icon(Icons.shopping_bag),
             label: const Text('Continuar Comprando'),
@@ -122,35 +81,12 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-<<<<<<< HEAD
-  Widget _buildCartItems(CartState state) {
-=======
   Widget _buildCartItems(CartProvider cart) {
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
     return Column(
       children: [
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
-<<<<<<< HEAD
-            itemCount: state.items.length,
-            itemBuilder: (context, index) {
-              final item = state.items[index];
-              return _CartItemCard(
-                item: item,
-                onRemove: () {
-                  context.read<CartBloc>().add(
-                    RemoveFromCartEvent(productId: item.product.id),
-                  );
-                },
-                onQuantityChanged: (newQuantity) {
-                  context.read<CartBloc>().add(
-                    UpdateQuantityEvent(
-                      productId: item.product.id,
-                      quantity: newQuantity,
-                    ),
-                  );
-=======
             itemCount: cart.items.length,
             itemBuilder: (context, index) {
               final item = cart.items[index];
@@ -161,26 +97,17 @@ class _CartPageState extends State<CartPage> {
                 },
                 onQuantityChanged: (newQuantity) {
                   cart.updateQuantity(item.product.id, newQuantity);
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
                 },
               );
             },
           ),
         ),
-<<<<<<< HEAD
-        _buildSummary(state),
-=======
         _buildSummary(cart),
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
       ],
     );
   }
 
-<<<<<<< HEAD
-  Widget _buildSummary(CartState state) {
-=======
   Widget _buildSummary(CartProvider cart) {
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -195,19 +122,11 @@ class _CartPageState extends State<CartPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-<<<<<<< HEAD
-                'Subtotal (${state.totalItems} ${state.totalItems == 1 ? 'item' : 'itens'})',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              Text(
-                'R\$ ${state.totalPrice.toStringAsFixed(2)}',
-=======
                 'Subtotal (${cart.totalQuantity} ${cart.totalQuantity == 1 ? 'item' : 'itens'})',
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
               Text(
                 'R\$ ${cart.totalPrice.toStringAsFixed(2)}',
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
                 style: const TextStyle(fontSize: 14),
               ),
             ],
@@ -242,11 +161,7 @@ class _CartPageState extends State<CartPage> {
                 ),
               ),
               Text(
-<<<<<<< HEAD
-                'R\$ ${state.totalPrice.toStringAsFixed(2)}',
-=======
                 'R\$ ${cart.totalPrice.toStringAsFixed(2)}',
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -260,11 +175,7 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-<<<<<<< HEAD
-  Widget _buildCheckoutButton(CartState state) {
-=======
   Widget _buildCheckoutButton(CartProvider cart) {
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -529,14 +440,6 @@ class _CartItemCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-<<<<<<< HEAD
-                  Text(
-                    'R\$ ${item.product.price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-=======
 
                   // Preço unitário
                   if (item.product.hasDiscount) ...[
@@ -547,7 +450,6 @@ class _CartItemCard extends StatelessWidget {
                         decoration: TextDecoration.lineThrough,
                         color: Colors.grey,
                       ),
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
                     ),
                     Text(
                       'R\$ ${item.product.finalPrice.toStringAsFixed(2)}',
@@ -582,14 +484,8 @@ class _CartItemCard extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.remove, size: 16),
                               onPressed: () {
-<<<<<<< HEAD
-                                final currentQty = item.quantity;
-                                if (currentQty > 1) {
-                                  onQuantityChanged(currentQty - 1);
-=======
                                 if (item.quantity > 1) {
                                   onQuantityChanged(item.quantity - 1);
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
                                 }
                               },
                               padding: const EdgeInsets.all(4),
@@ -608,12 +504,7 @@ class _CartItemCard extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.add, size: 16),
                               onPressed: () {
-<<<<<<< HEAD
-                                final currentQty = item.quantity;
-                                onQuantityChanged(currentQty + 1);
-=======
                                 onQuantityChanged(item.quantity + 1);
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
                               },
                               padding: const EdgeInsets.all(4),
                               constraints: const BoxConstraints(),

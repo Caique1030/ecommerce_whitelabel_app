@@ -5,6 +5,7 @@ import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dar
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/client/presentation/provider/whitelabel_provider.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/pages/user_edit_page.dart';
+import 'package:flutter_ecommerce/features/users/presentantion/pages/change_password_page.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/services/socket_io_service.dart';
 
@@ -142,7 +143,7 @@ class _MorePageState extends State<MorePage> {
           delegate: SliverChildListDelegate([
             const SizedBox(height: 8),
 
-            // Seção: Conta
+            // Seção: Minha Conta
             _buildSectionHeader(context, 'Minha Conta'),
             _buildMenuItem(
               context,
@@ -152,19 +153,20 @@ class _MorePageState extends State<MorePage> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                      builder: (context) => const EditProfilePage()),
+                    builder: (context) => const EditProfilePage(),
+                  ),
                 );
               },
             ),
             _buildMenuItem(
               context,
               icon: Icons.lock_outline,
-              title: 'Segurança',
-              subtitle: 'Alterar senha',
+              title: 'Alterar Senha',
+              subtitle: 'Trocar sua senha de acesso',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidade em desenvolvimento'),
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ChangePasswordPage(),
                   ),
                 );
               },
@@ -173,42 +175,17 @@ class _MorePageState extends State<MorePage> {
             const Divider(height: 32),
 
             // Seção: Compras
-            _buildSectionHeader(context, 'Compras'),
+            _buildSectionHeader(context, 'Minhas Compras'),
             _buildMenuItem(
               context,
               icon: Icons.shopping_bag_outlined,
               title: 'Meus Pedidos',
-              subtitle: 'Acompanhe seus pedidos',
+              subtitle: 'Acompanhe o status dos seus pedidos',
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Funcionalidade em desenvolvimento'),
-                  ),
-                );
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.favorite_outline,
-              title: 'Favoritos',
-              subtitle: 'Produtos que você marcou',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidade em desenvolvimento'),
-                  ),
-                );
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.star_outline,
-              title: 'Minhas Avaliações',
-              subtitle: 'Avalie seus produtos',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidade em desenvolvimento'),
+                    backgroundColor: Colors.orange,
                   ),
                 );
               },
@@ -216,34 +193,8 @@ class _MorePageState extends State<MorePage> {
 
             const Divider(height: 32),
 
-            // Seção: Configurações
-            _buildSectionHeader(context, 'Configurações'),
-            _buildMenuItem(
-              context,
-              icon: Icons.notifications_outlined,
-              title: 'Notificações',
-              subtitle: 'Gerencie suas notificações',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidade em desenvolvimento'),
-                  ),
-                );
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.help_outline,
-              title: 'Ajuda',
-              subtitle: 'Central de ajuda e suporte',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidade em desenvolvimento'),
-                  ),
-                );
-              },
-            ),
+            // Seção: Informações
+            _buildSectionHeader(context, 'Informações'),
             _buildMenuItem(
               context,
               icon: Icons.info_outline,

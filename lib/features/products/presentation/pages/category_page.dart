@@ -7,24 +7,114 @@ import 'package:flutter_ecommerce/features/products/presentation/pages/products_
 
 import '../../domain/entities/product.dart';
 
-class CategoriesPage extends StatelessWidget {
+class CategoriesPage extends StatefulWidget {
   const CategoriesPage({Key? key}) : super(key: key);
 
-  // Lista de categorias disponíveis
-  static const List<Map<String, dynamic>> categories = [
-    {'name': 'Eletrônicos', 'icon': Icons.devices, 'color': Color(0xFF3498db)},
-    {'name': 'Roupas', 'icon': Icons.checkroom, 'color': Color(0xFFe74c3c)},
-    {'name': 'Livros', 'icon': Icons.menu_book, 'color': Color(0xFFf39c12)},
-    {'name': 'Casa', 'icon': Icons.home, 'color': Color(0xFF2ecc71)},
-    {
-      'name': 'Esportes',
-      'icon': Icons.sports_soccer,
-      'color': Color(0xFF9b59b6)
-    },
-    {'name': 'Beleza', 'icon': Icons.spa, 'color': Color(0xFFe91e63)},
-    {'name': 'Brinquedos', 'icon': Icons.toys, 'color': Color(0xFF00bcd4)},
-    {'name': 'Alimentos', 'icon': Icons.restaurant, 'color': Color(0xFF4caf50)},
-  ];
+  @override
+  State<CategoriesPage> createState() => _CategoriesPageState();
+}
+
+class _CategoriesPageState extends State<CategoriesPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Garante que ao abrir a página, os filtros estejam limpos
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCategories();
+    });
+  }
+
+  void _loadCategories() {
+    // Limpa qualquer filtro existente e carrega todos os produtos
+    context.read<ProductsBloc>().add(const ResetFilters());
+  }
+
+  // Mapa de ícones para categorias comuns
+  IconData _getCategoryIcon(String category) {
+    final categoryLower = category.toLowerCase();
+
+    if (categoryLower.contains('electronic') ||
+        categoryLower.contains('eletrônic')) {
+      return Icons.devices;
+    } else if (categoryLower.contains('cloth') ||
+        categoryLower.contains('roupa') ||
+        categoryLower.contains('fashion')) {
+      return Icons.checkroom;
+    } else if (categoryLower.contains('book') ||
+        categoryLower.contains('livro')) {
+      return Icons.menu_book;
+    } else if (categoryLower.contains('home') ||
+        categoryLower.contains('casa') ||
+        categoryLower.contains('garden')) {
+      return Icons.home;
+    } else if (categoryLower.contains('sport') ||
+        categoryLower.contains('esporte')) {
+      return Icons.sports_soccer;
+    } else if (categoryLower.contains('beauty') ||
+        categoryLower.contains('beleza')) {
+      return Icons.spa;
+    } else if (categoryLower.contains('toy') ||
+        categoryLower.contains('brinquedo')) {
+      return Icons.toys;
+    } else if (categoryLower.contains('food') ||
+        categoryLower.contains('alimento') ||
+        categoryLower.contains('grocery')) {
+      return Icons.restaurant;
+    } else if (categoryLower.contains('tool') ||
+        categoryLower.contains('ferramenta')) {
+      return Icons.build;
+    } else if (categoryLower.contains('health') ||
+        categoryLower.contains('saúde')) {
+      return Icons.local_hospital;
+    } else if (categoryLower.contains('music') ||
+        categoryLower.contains('música')) {
+      return Icons.music_note;
+    } else if (categoryLower.contains('movie') ||
+        categoryLower.contains('filme')) {
+      return Icons.movie;
+    } else if (categoryLower.contains('computer') ||
+        categoryLower.contains('computador')) {
+      return Icons.computer;
+    } else if (categoryLower.contains('shoe') ||
+        categoryLower.contains('sapato') ||
+        categoryLower.contains('calçado')) {
+      return Icons.beach_access;
+    } else if (categoryLower.contains('jewelry') ||
+        categoryLower.contains('joia')) {
+      return Icons.diamond;
+    } else if (categoryLower.contains('baby') ||
+        categoryLower.contains('bebê')) {
+      return Icons.child_care;
+    } else if (categoryLower.contains('kid') ||
+        categoryLower.contains('criança')) {
+      return Icons.child_friendly;
+    } else if (categoryLower.contains('outdoor')) {
+      return Icons.terrain;
+    } else if (categoryLower.contains('game')) {
+      return Icons.sports_esports;
+    } else if (categoryLower.contains('industrial')) {
+      return Icons.factory;
+    } else {
+      return Icons.category;
+    }
+  }
+
+  // Mapa de cores para categorias
+  Color _getCategoryColor(int index) {
+    final colors = [
+      const Color(0xFF3498db),
+      const Color(0xFFe74c3c),
+      const Color(0xFFf39c12),
+      const Color(0xFF2ecc71),
+      const Color(0xFF9b59b6),
+      const Color(0xFFe91e63),
+      const Color(0xFF00bcd4),
+      const Color(0xFF4caf50),
+      const Color(0xFFff9800),
+      const Color(0xFF795548),
+    ];
+    return colors[index % colors.length];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,37 +122,118 @@ class CategoriesPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Categorias'),
         backgroundColor: Theme.of(context).primaryColor,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sync),
+            onPressed: _loadCategories,
+            tooltip: 'Atualizar',
+          ),
+        ],
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          return _CategoryCard(
-            name: category['name'],
-            icon: category['icon'],
-            color: category['color'],
-            onTap: () {
-              // Navegar para lista de produtos filtrada por categoria
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BlocProvider.value(
-                    value: context.read<ProductsBloc>()
-                      ..add(FilterProductsEvent(category: category['name'])),
-                    child:
-                        _CategoryProductsPage(categoryName: category['name']),
+      body: BlocBuilder<ProductsBloc, ProductsState>(
+        builder: (context, state) {
+          if (state is ProductsLoading || state is ProductsSyncing) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is ProductsError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 60, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadCategories,
+                    child: const Text('Tentar Novamente'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (state is ProductsLoaded) {
+            // Extrai categorias únicas dos produtos
+            final categoriesSet = <String>{};
+            for (var product in state.products) {
+              if (product.category != null && product.category!.isNotEmpty) {
+                categoriesSet.add(product.category!);
+              }
+            }
+
+            final categories = categoriesSet.toList()..sort();
+
+            if (categories.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.category_outlined,
+                      size: 80,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Nenhuma categoria encontrada',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
                 ),
               );
-            },
-          );
+            }
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                _loadCategories();
+              },
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1.2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  return _CategoryCard(
+                    name: category,
+                    icon: _getCategoryIcon(category),
+                    color: _getCategoryColor(index),
+                    onTap: () async {
+                      // ✅ Navegar para produtos da categoria
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => _CategoryProductsPage(
+                            categoryName: category,
+                            productsBloc: context.read<ProductsBloc>(),
+                          ),
+                        ),
+                      );
+
+                      // ✅ CRÍTICO: Ao voltar, limpa filtros e recarrega tudo
+                      if (mounted) {
+                        context.read<ProductsBloc>().add(const ResetFilters());
+                      }
+                    },
+                  );
+                },
+              ),
+            );
+          }
+
+          return const Center(child: CircularProgressIndicator());
         },
       ),
     );
@@ -117,6 +288,8 @@ class _CategoryCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -126,99 +299,157 @@ class _CategoryCard extends StatelessWidget {
   }
 }
 
-// Página de produtos por categoria
-class _CategoryProductsPage extends StatelessWidget {
+// ✅ Página de produtos por categoria - COM SEU PRÓPRIO BLOC
+class _CategoryProductsPage extends StatefulWidget {
   final String categoryName;
+  final ProductsBloc productsBloc;
 
-  const _CategoryProductsPage({Key? key, required this.categoryName})
-      : super(key: key);
+  const _CategoryProductsPage({
+    Key? key,
+    required this.categoryName,
+    required this.productsBloc,
+  }) : super(key: key);
+
+  @override
+  State<_CategoryProductsPage> createState() => _CategoryProductsPageState();
+}
+
+class _CategoryProductsPageState extends State<_CategoryProductsPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Carrega produtos da categoria ao abrir
+    widget.productsBloc.add(FilterProductsEvent(category: widget.categoryName));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(categoryName),
-      ),
-      body: BlocBuilder<ProductsBloc, ProductsState>(
-        builder: (context, state) {
-          if (state is ProductsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is ProductsError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 60, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(state.message),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<ProductsBloc>().add(
-                            FilterProductsEvent(category: categoryName),
-                          );
-                    },
-                    child: const Text('Tentar Novamente'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is ProductsEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.inbox, size: 80, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Nenhum produto encontrado\nnesta categoria',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is ProductsLoaded) {
-            return GridView.builder(
-              padding: const EdgeInsets.all(8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.7,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: state.products.length,
-              itemBuilder: (context, index) {
-                final product = state.products[index];
-                return _ProductCard(
-                  product: product,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ProductDetailPage(product: product),
-                      ),
-                    );
-                  },
-                );
+    return WillPopScope(
+      onWillPop: () async {
+        // ✅ Limpa os filtros quando o usuário pressionar voltar
+        widget.productsBloc.add(const ResetFilters());
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.categoryName),
+          backgroundColor: Theme.of(context).primaryColor,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              // ✅ Limpa filtros ao clicar no botão voltar
+              widget.productsBloc.add(const ResetFilters());
+              Navigator.of(context).pop();
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.clear),
+              tooltip: 'Limpar filtro e voltar',
+              onPressed: () {
+                widget.productsBloc.add(const ResetFilters());
+                Navigator.of(context).pop();
               },
-            );
-          }
+            ),
+          ],
+        ),
+        body: BlocBuilder<ProductsBloc, ProductsState>(
+          bloc: widget.productsBloc,
+          builder: (context, state) {
+            if (state is ProductsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          return const Center(child: CircularProgressIndicator());
-        },
+            if (state is ProductsError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        size: 60, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        widget.productsBloc.add(
+                          FilterProductsEvent(category: widget.categoryName),
+                        );
+                      },
+                      child: const Text('Tentar Novamente'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (state is ProductsEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.inbox, size: 80, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Nenhum produto encontrado\nnesta categoria',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 24),
+                    OutlinedButton(
+                      onPressed: () {
+                        widget.productsBloc.add(const ResetFilters());
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Voltar'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (state is ProductsLoaded) {
+              return GridView.builder(
+                padding: const EdgeInsets.all(8),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.7,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: state.products.length,
+                itemBuilder: (context, index) {
+                  final product = state.products[index];
+                  return _ProductCard(
+                    product: product,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ProductDetailPage(product: product),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            }
+
+            return const Center(child: CircularProgressIndicator());
+          },
+        ),
       ),
     );
   }
 }
 
-// ✅ Card de produto CORRIGIDO - SEM OVERFLOW
+// Card de produto otimizado
 class _ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onTap;
@@ -235,9 +466,9 @@ class _ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ✅ Imagem - Tamanho fixo ao invés de Expanded
+            // Imagem com altura fixa
             SizedBox(
-              height: 140, // Altura fixa para evitar overflow
+              height: 140,
               child: product.image != null
                   ? Image.network(
                       product.image!,
@@ -253,13 +484,12 @@ class _ProductCard extends StatelessWidget {
                     ),
             ),
 
-            // ✅ Informações - Padding maior e sem Expanded
+            // Informações do produto
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize:
-                    MainAxisSize.min, // ✅ IMPORTANTE: min ao invés de max
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   // Nome do produto
                   Text(
@@ -268,20 +498,38 @@ class _ProductCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 12,
-                      height: 1.2, // ✅ Controla o espaçamento entre linhas
+                      height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 8), // ✅ Espaçamento fixo
+                  const SizedBox(height: 8),
 
                   // Preço
-                  Text(
-                    'R\$ ${product.price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
+                  if (product.hasDiscount) ...[
+                    Text(
+                      'R\$ ${product.price.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        decoration: TextDecoration.lineThrough,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
+                    Text(
+                      'R\$ ${product.finalPrice.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ] else
+                    Text(
+                      'R\$ ${product.price.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
                 ],
               ),
             ),

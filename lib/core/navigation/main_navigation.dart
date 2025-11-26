@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/products/presentation/pages/cart_page.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_ecommerce/features/products/presentation/pages/category_
 import 'package:flutter_ecommerce/features/products/presentation/pages/more_page.dart';
 import 'package:flutter_ecommerce/features/products/presentation/pages/offers_page.dart';
 import 'package:flutter_ecommerce/features/products/presentation/pages/products_list_page.dart';
+import 'package:flutter_ecommerce/features/products/domain/usecases/cart_provider.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({Key? key}) : super(key: key);
@@ -46,47 +48,79 @@ class _MainNavigationState extends State<MainNavigation> {
           index: _currentIndex,
           children: _pages,
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
+        // ✅ CORRIGIDO: BottomNavigationBar com Consumer para atualizar badge
+        bottomNavigationBar: Consumer<CartProvider>(
+          builder: (context, cart, child) {
+            return BottomNavigationBar(
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: Theme.of(context).primaryColor,
+              unselectedItemColor: Colors.grey,
+              selectedFontSize: 12,
+              unselectedFontSize: 12,
+              items: [
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.home_outlined),
+                  activeIcon: Icon(Icons.home),
+                  label: 'Início',
+                ),
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.grid_view_outlined),
+                  activeIcon: Icon(Icons.grid_view),
+                  label: 'Categorias',
+                ),
+                // ✅ CARRINHO com Badge dinâmico
+                BottomNavigationBarItem(
+                  icon: _buildCartIcon(cart, isActive: false),
+                  activeIcon: _buildCartIcon(cart, isActive: true),
+                  label: 'Carrinho',
+                ),
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.local_offer_outlined),
+                  activeIcon: Icon(Icons.local_offer),
+                  label: 'Ofertas',
+                ),
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.more_horiz),
+                  activeIcon: Icon(Icons.menu),
+                  label: 'Mais',
+                ),
+              ],
+            );
           },
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Theme.of(context).primaryColor,
-          unselectedItemColor: Colors.grey,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Início',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.grid_view_outlined),
-              activeIcon: Icon(Icons.grid_view),
-              label: 'Categorias',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart_outlined),
-              activeIcon: Icon(Icons.shopping_cart),
-              label: 'Carrinho',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_offer_outlined),
-              activeIcon: Icon(Icons.local_offer),
-              label: 'Ofertas',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.more_horiz),
-              activeIcon: Icon(Icons.menu),
-              label: 'Mais',
-            ),
-          ],
         ),
       ),
+    );
+  }
+
+  // ✅ Widget helper para mostrar badge no ícone do carrinho
+  Widget _buildCartIcon(CartProvider cart, {required bool isActive}) {
+    final iconWidget = Icon(
+      isActive ? Icons.shopping_cart : Icons.shopping_cart_outlined,
+    );
+
+    // Se não tem itens, mostra apenas o ícone
+    if (cart.totalQuantity == 0) {
+      return iconWidget;
+    }
+
+    // Se tem itens, mostra com badge
+    return Badge(
+      label: Text(
+        '${cart.totalQuantity}',
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      child: iconWidget,
     );
   }
 }

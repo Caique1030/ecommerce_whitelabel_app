@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_bloc.dart';
-import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_event.dart';
+import 'package:provider/provider.dart';
+import '../../domain/usecases/cart_provider.dart';
 import '../../domain/entities/product.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -262,27 +261,47 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ],
         ),
       ),
-      // No ProductDetailPage, substitua o botão no bottomNavigationBar:
+      // ✅ CORRIGIDO: Usando CartProvider ao invés de CartBloc
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
             onPressed: () {
-              // Adiciona o produto ao carrinho
-              context.read<CartBloc>().add(AddToCartEvent(product: product));
+              // Adiciona o produto ao carrinho usando CartProvider
+              final cartProvider = context.read<CartProvider>();
+              cartProvider.addItem(widget.product, quantity: _quantity);
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Produto adicionado ao carrinho!'),
+                SnackBar(
+                  content: Text(
+                    _quantity > 1
+                        ? '$_quantity itens adicionados ao carrinho!'
+                        : 'Produto adicionado ao carrinho!',
+                  ),
+                  duration: const Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: 'Ver Carrinho',
+                    onPressed: () {
+                      // Navega para a página do carrinho
+                      Navigator.pushNamed(context, '/cart');
+                    },
+                  ),
                 ),
               );
+
+              // Reseta a quantidade após adicionar
+              setState(() {
+                _quantity = 1;
+              });
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text(
-              'Adicionar ao Carrinho',
-              style: TextStyle(fontSize: 16),
+            child: Text(
+              _quantity > 1
+                  ? 'Adicionar $_quantity ao Carrinho'
+                  : 'Adicionar ao Carrinho',
+              style: const TextStyle(fontSize: 16),
             ),
           ),
         ),
