@@ -16,7 +16,11 @@ class CategoriesPage extends StatelessWidget {
     {'name': 'Roupas', 'icon': Icons.checkroom, 'color': Color(0xFFe74c3c)},
     {'name': 'Livros', 'icon': Icons.menu_book, 'color': Color(0xFFf39c12)},
     {'name': 'Casa', 'icon': Icons.home, 'color': Color(0xFF2ecc71)},
-    {'name': 'Esportes', 'icon': Icons.sports_soccer, 'color': Color(0xFF9b59b6)},
+    {
+      'name': 'Esportes',
+      'icon': Icons.sports_soccer,
+      'color': Color(0xFF9b59b6)
+    },
     {'name': 'Beleza', 'icon': Icons.spa, 'color': Color(0xFFe91e63)},
     {'name': 'Brinquedos', 'icon': Icons.toys, 'color': Color(0xFF00bcd4)},
     {'name': 'Alimentos', 'icon': Icons.restaurant, 'color': Color(0xFF4caf50)},
@@ -52,7 +56,8 @@ class CategoriesPage extends StatelessWidget {
                   builder: (_) => BlocProvider.value(
                     value: context.read<ProductsBloc>()
                       ..add(FilterProductsEvent(category: category['name'])),
-                    child: _CategoryProductsPage(categoryName: category['name']),
+                    child:
+                        _CategoryProductsPage(categoryName: category['name']),
                   ),
                 ),
               );
@@ -213,8 +218,7 @@ class _CategoryProductsPage extends StatelessWidget {
   }
 }
 
-
-// Card de produto simplificado
+// ✅ Card de produto CORRIGIDO - SEM OVERFLOW
 class _ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onTap;
@@ -231,8 +235,9 @@ class _ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              flex: 3,
+            // ✅ Imagem - Tamanho fixo ao invés de Expanded
+            SizedBox(
+              height: 140, // Altura fixa para evitar overflow
               child: product.image != null
                   ? Image.network(
                       product.image!,
@@ -247,30 +252,37 @@ class _ProductCard extends StatelessWidget {
                       child: const Icon(Icons.image, size: 50),
                     ),
             ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      product.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12),
+
+            // ✅ Informações - Padding maior e sem Expanded
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize:
+                    MainAxisSize.min, // ✅ IMPORTANTE: min ao invés de max
+                children: [
+                  // Nome do produto
+                  Text(
+                    product.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      height: 1.2, // ✅ Controla o espaçamento entre linhas
                     ),
-                    Text(
-                      'R\$ ${product.price.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                      ),
+                  ),
+                  const SizedBox(height: 8), // ✅ Espaçamento fixo
+
+                  // Preço
+                  Text(
+                    'R\$ ${product.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -279,5 +291,3 @@ class _ProductCard extends StatelessWidget {
     );
   }
 }
-
-

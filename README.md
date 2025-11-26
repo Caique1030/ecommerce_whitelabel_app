@@ -2,19 +2,19 @@
 
 <div align="center">
 
-![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-3.7+-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.0+-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20iOS%20%7C%20Android-lightgrey?style=for-the-badge)
 
-**Aplicativo E-commerce Multi-tenant com Arquitetura Limpa**
+**Aplicativo E-commerce Multi-tenant com Clean Architecture e BLoC**
 
 [Características](#-características) •
 [Instalação](#-instalação) •
 [Configuração](#️-configuração) •
 [Uso](#-uso) •
 [Arquitetura](#-arquitetura) •
-[API](#-api)
+[Troubleshooting](#-troubleshooting)
 
 </div>
 
@@ -22,52 +22,57 @@
 
 ## 📋 Sobre o Projeto
 
-Sistema de e-commerce **whitelabel** desenvolvido em Flutter que permite múltiplos clientes (tenants) utilizarem a mesma base de código com diferentes identidades visuais e configurações. O app consome uma API NestJS e suporta múltiplos fornecedores de produtos.
+Sistema de e-commerce **whitelabel** desenvolvido em Flutter que permite múltiplos clientes (tenants) utilizarem a mesma base de código com diferentes identidades visuais e configurações. O app consome uma API NestJS e suporta múltiplos fornecedores de produtos com sincronização automática.
 
 ### ✨ Principais Diferenciais
 
-- 🎨 **Whitelabel**: Temas dinâmicos por cliente (cores, logos, nome)
+- 🎨 **Whitelabel Dinâmico**: Temas aplicados instantaneamente baseados no domínio (sem dependência de API)
 - 🏢 **Multi-tenant**: Suporta múltiplos clientes na mesma aplicação
-- 🔄 **Sincronização Automática**: Integração com múltiplos fornecedores
-- 💾 **Cache Inteligente**: Sistema de cache local para melhor performance
-- 🔐 **Autenticação JWT**: Sistema seguro de autenticação
-- 🌐 **WebSocket**: Atualizações em tempo real
-- 📱 **Responsivo**: Funciona em Web, iOS e Android
+- 🔄 **Sincronização Automática**: Integração com múltiplos fornecedores externos
+- 💾 **Cache Inteligente**: Sistema de cache local com SharedPreferences (validade de 24h)
+- 🔐 **Autenticação JWT**: Sistema seguro de autenticação com refresh token
+- 🌐 **WebSocket Real-time**: Atualizações em tempo real via Socket.IO
+- 📱 **Cross-platform**: Web, iOS e Android com código único
+- 🛒 **Carrinho Completo**: Sistema de carrinho com Provider e gestão de estado
 
 ---
 
 ## 🎯 Características
 
-### 🛒 Funcionalidades de E-commerce
+### 🛍️ E-commerce Completo
 
-- ✅ Listagem de produtos com filtros avançados
-- ✅ Busca por nome, categoria e faixa de preço
-- ✅ Carrinho de compras
-- ✅ Detalhes do produto com galeria de imagens
-- ✅ Ofertas e descontos
-- ✅ Categorização de produtos
+- ✅ **Listagem de Produtos**: Grid responsivo com cards otimizados
+- ✅ **Busca e Filtros**: Por nome, categoria, faixa de preço e fornecedor
+- ✅ **Detalhes do Produto**: Galeria de imagens, descrição completa, informações técnicas
+- ✅ **Carrinho de Compras**: Adicionar, remover, alterar quantidades
+- ✅ **Ofertas e Descontos**: Badge de desconto, preço original riscado
+- ✅ **Categorias**: Página dedicada com ícones customizados
+- ✅ **Sincronização**: Busca produtos de fornecedores externos e salva localmente
 
 ### 👤 Gestão de Usuários
 
-- ✅ Registro e login
-- ✅ Autenticação JWT
-- ✅ Perfil do usuário
-- ✅ Edição de dados pessoais
-- ✅ Troca de senha
+- ✅ **Autenticação**: Login e registro com validação
+- ✅ **JWT**: Tokens salvos localmente com SharedPreferences
+- ✅ **Perfil**: Visualização e edição de dados pessoais
+- ✅ **Atualização em Tempo Real**: WebSocket notifica alterações no perfil
+- ✅ **Segurança**: Change password, delete account
 
-### 🎨 Whitelabel
+### 🎨 Whitelabel & Temas
 
-- ✅ Cores primárias e secundárias customizáveis
-- ✅ Logo personalizada por cliente
-- ✅ Nome da aplicação dinâmico
-- ✅ Temas configuráveis via API
+- ✅ **Detecção Automática**: Identifica o cliente pelo domínio (Uri.base.host)
+- ✅ **Cores Personalizadas**: Primary e secondary colors por cliente
+- ✅ **Aplicação Instantânea**: Tema correto desde o primeiro frame
+- ✅ **Clientes Suportados**:
+  - 🟢 **localhost**: Verde (#2ecc71 / #27ae60)
+  - 🟢 **devnology.com**: Verde (#2ecc71 / #27ae60)
+  - 🟣 **in8.com**: Roxo (#8e44ad / #9b59b6)
 
-### ⚡ Performance
+### ⚡ Performance & Cache
 
-- ✅ Cache local com SharedPreferences
-- ✅ Sincronização de produtos em background
-- ✅ Filtros locais para respostas instantâneas
-- ✅ Lazy loading de produtos
+- ✅ **Cache Local**: Produtos salvos com SharedPreferences (24h de validade)
+- ✅ **Filtros Locais**: Busca e filtros aplicados no cache (instantâneo)
+- ✅ **Sincronização Inteligente**: Atualiza apenas quando necessário
+- ✅ **Lazy Loading**: Carregamento sob demanda
 
 ---
 
@@ -77,7 +82,7 @@ Sistema de e-commerce **whitelabel** desenvolvido em Flutter que permite múltip
 
 Certifique-se de ter instalado:
 
-- [Flutter](https://flutter.dev/docs/get-started/install) 3.0 ou superior
+- [Flutter](https://flutter.dev/docs/get-started/install) 3.7 ou superior
 - [Dart](https://dart.dev/get-dart) 3.0 ou superior
 - [Git](https://git-scm.com/)
 - Um editor de código ([VS Code](https://code.visualstudio.com/) recomendado)
@@ -95,16 +100,7 @@ cd flutter-ecommerce-whitelabel
 flutter pub get
 ```
 
-### 3️⃣ Configurar Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto (opcional, se usar dotenv):
-
-```env
-API_BASE_URL=http://localhost:3000/api
-WS_URL=http://localhost:3000
-```
-
-### 4️⃣ Verificar Instalação
+### 3️⃣ Verificar Instalação
 
 ```bash
 flutter doctor
@@ -120,57 +116,85 @@ Edite o arquivo `lib/core/constants/app_constants.dart`:
 
 ```dart
 class AppConstants {
-  // 🔧 Configuração da API
+  // 🔧 URL Base da API
   static const String baseUrl = 'http://localhost:3000/api';
   
-  // 🔧 Configuração WebSocket
+  // 🔧 WebSocket Namespace
   static const String wsNamespace = 'events';
   
-  // 🔧 Domínios dos Clientes
+  // 🔧 Domínios Whitelabel
   static const Map<String, String> clientDomains = {
     'localhost': 'localhost',
     'devnology': 'devnology.com',
     'in8': 'in8.com',
   };
+  
+  // 🎨 Cores por Cliente
+  static const Map<String, Map<String, String>> clientColors = {
+    'localhost': {'primary': '#2ecc71', 'secondary': '#27ae60'},
+    'devnology.com': {'primary': '#2ecc71', 'secondary': '#27ae60'},
+    'in8.com': {'primary': '#8e44ad', 'secondary': '#9b59b6'},
+  };
 }
 ```
 
-### 🎨 Configuração de Temas
+### 🔑 Configuração do Backend
 
-As cores e temas são carregados dinamicamente da API, mas você pode definir valores padrão em `lib/core/theme/app_theme.dart`.
+O app espera que o backend NestJS esteja rodando em `http://localhost:3000`.
+
+**Headers obrigatórios em todas as requisições:**
+- `X-Client-Domain`: Identifica o cliente (ex: `devnology.com`)
+- `Authorization`: Bearer token JWT (para rotas autenticadas)
 
 ---
 
 ## 🖥️ Uso
 
-### Executar no Chrome (Web)
+### Executar para Diferentes Clientes
 
+#### 🟢 Localhost (Verde)
+```bash
+flutter run -d chrome --web-hostname=localhost --web-port=8000
+```
+Acesse: `http://localhost:8000`
+
+#### 🟢 Devnology (Verde)
 ```bash
 flutter run -d chrome --web-hostname=devnology.com --web-port=8000
 ```
+Acesse: `http://devnology.com:8000`
 
-### Executar no Android
-
+#### 🟣 In8 (Roxo)
 ```bash
-flutter run -d android
+flutter run -d chrome --web-hostname=in8.com --web-port=8000
 ```
+Acesse: `http://in8.com:8000`
 
-### Executar no iOS
+### Configurar Hosts (Desenvolvimento Local)
 
-```bash
-flutter run -d ios
+Para testar diferentes domínios localmente, edite o arquivo de hosts:
+
+**Windows**: `C:\Windows\System32\drivers\etc\hosts`  
+**Mac/Linux**: `/etc/hosts`
+
+```
+127.0.0.1 localhost
+127.0.0.1 devnology.com
+127.0.0.1 in8.com
 ```
 
 ### Build para Produção
 
 #### Web
 ```bash
-flutter build web --release
+flutter build web --release --web-renderer html
 ```
 
 #### Android
 ```bash
 flutter build apk --release
+# ou
+flutter build appbundle --release
 ```
 
 #### iOS
@@ -180,167 +204,27 @@ flutter build ios --release
 
 ---
 
-## 📁 Estrutura do Projeto
-
-```
-lib/
-├── main.dart                          # Entry point
-│
-├── core/                              # Núcleo da aplicação
-│   ├── constants/
-│   │   └── app_constants.dart        # Constantes globais
-│   ├── errors/
-│   │   ├── exceptions.dart           # Exceções customizadas
-│   │   └── failures.dart             # Tratamento de falhas
-│   ├── network/
-│   │   └── api_client.dart           # Cliente HTTP
-│   ├── services/
-│   │   └── socket_io_service.dart    # WebSocket service
-│   ├── navigation/
-│   │   └── main_navigation.dart      # Navegação principal
-│   └── theme/
-│       ├── app_theme.dart            # Tema global
-│       └── whitelabel_theme.dart     # Tema whitelabel
-│
-├── features/                          # Funcionalidades (Clean Architecture)
-│   │
-│   ├── auth/                         # 🔐 Autenticação
-│   │   ├── data/
-│   │   │   ├── datasources/
-│   │   │   │   └── auth_remote_datasource.dart
-│   │   │   ├── models/
-│   │   │   │   └── user_model.dart
-│   │   │   └── repositories/
-│   │   │       └── auth_repository_impl.dart
-│   │   ├── domain/
-│   │   │   ├── entities/
-│   │   │   │   └── user.dart
-│   │   │   ├── repositories/
-│   │   │   │   └── auth_repository.dart
-│   │   │   └── usecases/
-│   │   │       ├── sign_in.dart
-│   │   │       ├── sign_up.dart
-│   │   │       └── sign_out.dart
-│   │   └── presentation/
-│   │       ├── bloc/
-│   │       │   ├── auth_bloc.dart
-│   │       │   ├── auth_event.dart
-│   │       │   └── auth_state.dart
-│   │       ├── pages/
-│   │       │   ├── login_page.dart
-│   │       │   └── register_page.dart
-│   │       └── widgets/
-│   │           ├── login_form.dart
-│   │           └── register_form.dart
-│   │
-│   ├── products/                     # 🛍️ Produtos
-│   │   ├── data/
-│   │   │   ├── datasources/
-│   │   │   │   └── product_remote_datasources.dart
-│   │   │   ├── models/
-│   │   │   │   └── product_model.dart
-│   │   │   └── repositories/
-│   │   │       └── products_repository_impl.dart
-│   │   ├── domain/
-│   │   │   ├── entities/
-│   │   │   │   └── product.dart
-│   │   │   ├── repositories/
-│   │   │   │   └── products_repository.dart
-│   │   │   └── usecases/
-│   │   │       ├── get_products.dart
-│   │   │       ├── filter_products.dart
-│   │   │       ├── get_products_by_id.dart
-│   │   │       └── sync_product.dart
-│   │   └── presentation/
-│   │       ├── bloc/
-│   │       │   ├── products_bloc.dart
-│   │       │   ├── products_event.dart
-│   │       │   └── products_state.dart
-│   │       ├── pages/
-│   │       │   ├── products_list_page.dart
-│   │       │   ├── products_detail_page.dart
-│   │       │   ├── cart_page.dart
-│   │       │   ├── category_page.dart
-│   │       │   └── offers_page.dart
-│   │       └── widgets/
-│   │           ├── product_card.dart
-│   │           ├── products_filter.dart
-│   │           └── products_grid.dart
-│   │
-│   ├── client/                       # 🏢 Configuração de Clientes
-│   │   ├── data/
-│   │   │   ├── datasources/
-│   │   │   │   └── client_remote_datasource.dart
-│   │   │   ├── models/
-│   │   │   │   └── client_model.dart
-│   │   │   └── repositories/
-│   │   │       └── client_repository_impl.dart
-│   │   ├── domain/
-│   │   │   ├── entities/
-│   │   │   │   └── client.dart
-│   │   │   ├── repositories/
-│   │   │   │   └── client_repository.dart
-│   │   │   └── usecases/
-│   │   │       └── GetClientConfig.dart
-│   │   └── presentation/
-│   │       └── provider/
-│   │           └── whitelabel_provider.dart
-│   │
-│   └── users/                        # 👤 Gestão de Usuários
-│       ├── data/
-│       │   ├── datasources/
-│       │   │   └── user_remote_datasource.dart
-│       │   ├── models/
-│       │   │   └── user_model.dart
-│       │   └── repositories/
-│       │       └── user_repository_impl.dart
-│       ├── domain/
-│       │   ├── entities/
-│       │   │   └── user.dart
-│       │   ├── repositories/
-│       │   │   └── user_repository.dart
-│       │   └── usecases/
-│       │       ├── get_user.dart
-│       │       ├── get_profile.dart
-│       │       ├── update_user.dart
-│       │       ├── update_profile.dart
-│       │       ├── change_password.dart
-│       │       ├── delete_user.dart
-│       │       └── get_all_users.dart
-│       └── presentation/
-│           ├── bloc/
-│           │   ├── user_bloc.dart
-│           │   ├── user_event.dart
-│           │   └── user_state.dart
-│           └── pages/
-│               └── user_edit_page.dart
-│
-└── injection_container.dart           # 💉 Injeção de Dependências (GetIt)
-```
-
----
-
 ## 🏗️ Arquitetura
 
-Este projeto segue os princípios da **Clean Architecture** proposta por Robert C. Martin, combinada com o padrão **BLoC** (Business Logic Component) para gerenciamento de estado.
+Este projeto segue **Clean Architecture** proposta por Robert C. Martin + **BLoC Pattern** para gerenciamento de estado.
 
-### 📐 Camadas
+### 📐 Estrutura de Camadas
 
 ```
-┌─────────────────────────────────────────┐
-│         Presentation Layer              │
-│  (UI, Widgets, BLoC, Pages, Providers)  │
-└─────────────────┬───────────────────────┘
-                  │
-┌─────────────────▼───────────────────────┐
-│          Domain Layer                   │
-│  (Entities, Use Cases, Repositories)    │
-└─────────────────┬───────────────────────┘
-                  │
-┌─────────────────▼───────────────────────┐
-│           Data Layer                    │
-│  (Models, Datasources, Repositories)    │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│         Presentation Layer                  │
+│  (UI, Widgets, BLoC, Pages, Providers)      │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│          Domain Layer                       │
+│  (Entities, Use Cases, Repositories)        │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│           Data Layer                        │
+│  (Models, Datasources, Repositories Impl)   │
+└─────────────────────────────────────────────┘
 ```
 
 ### 🔄 Fluxo de Dados
@@ -351,87 +235,185 @@ User Action → Event → BLoC → Use Case → Repository → DataSource → AP
               State → UI Update
 ```
 
-### 🧩 Principais Componentes
+### 📂 Estrutura de Pastas
 
-#### **BLoC Pattern**
-Gerenciamento de estado reativo e previsível.
-
-```dart
-class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
-  final GetProducts getProducts;
-  
-  ProductsBloc({required this.getProducts}) : super(ProductsInitial()) {
-    on<LoadProducts>(_onLoadProducts);
-  }
-}
 ```
-
-#### **Use Cases**
-Lógica de negócio isolada e testável.
-
-```dart
-class GetProducts {
-  final ProductsRepository repository;
-  
-  Future<Either<Failure, List<Product>>> call(params) async {
-    return await repository.getProducts(/* ... */);
-  }
-}
-```
-
-#### **Repositories**
-Abstração para fontes de dados.
-
-```dart
-abstract class ProductsRepository {
-  Future<Either<Failure, List<Product>>> getProducts();
-}
+lib/
+├── main.dart                          # Entry point + tema whitelabel
+├── injection_container.dart           # Dependency Injection (GetIt)
+│
+├── core/                              # Núcleo da aplicação
+│   ├── constants/
+│   │   └── app_constants.dart        # Constantes globais + cores whitelabel
+│   ├── errors/
+│   │   ├── exceptions.dart           # Exceções customizadas
+│   │   └── failures.dart             # Tipos de falhas
+│   ├── network/
+│   │   └── api_client.dart           # Cliente HTTP + interceptors
+│   ├── services/
+│   │   └── socket_io_service.dart    # WebSocket service
+│   ├── navigation/
+│   │   └── main_navigation.dart      # Bottom Navigation
+│   └── theme/
+│       ├── app_theme.dart            # Theme builder
+│       └── whitelabel_theme.dart     # Detecção de domínio + tema
+│
+└── features/                          # Features (Clean Architecture)
+    │
+    ├── auth/                         # 🔐 Autenticação
+    │   ├── data/
+    │   │   ├── datasources/
+    │   │   │   └── auth_remote_datasource.dart
+    │   │   ├── models/
+    │   │   │   └── user_model.dart
+    │   │   └── repositories/
+    │   │       └── auth_repository_impl.dart
+    │   ├── domain/
+    │   │   ├── entities/
+    │   │   │   └── user.dart
+    │   │   ├── repositories/
+    │   │   │   └── auth_repository.dart
+    │   │   └── usecases/
+    │   │       ├── sign_in.dart
+    │   │       ├── sign_up.dart
+    │   │       └── sign_out.dart
+    │   └── presentation/
+    │       ├── bloc/
+    │       │   ├── auth_bloc.dart
+    │       │   ├── auth_event.dart
+    │       │   └── auth_state.dart
+    │       ├── pages/
+    │       │   ├── login_page.dart
+    │       │   └── register_page.dart
+    │       └── widgets/
+    │           ├── login_form.dart
+    │           └── register_form.dart
+    │
+    ├── products/                     # 🛍️ Produtos
+    │   ├── data/
+    │   │   ├── datasources/
+    │   │   │   └── product_remote_datasources.dart
+    │   │   ├── models/
+    │   │   │   └── product_model.dart
+    │   │   └── repositories/
+    │   │       └── products_repository_impl.dart  # ✅ Cache de 24h
+    │   ├── domain/
+    │   │   ├── entities/
+    │   │   │   └── product.dart
+    │   │   ├── repositories/
+    │   │   │   └── products_repository.dart
+    │   │   └── usecases/
+    │   │       ├── get_products.dart
+    │   │       ├── filter_products.dart      # ✅ Filtros locais
+    │   │       ├── get_products_by_id.dart
+    │   │       ├── sync_product.dart         # ✅ Sincronização
+    │   │       └── cart_provider.dart        # ✅ Carrinho
+    │   └── presentation/
+    │       ├── bloc/
+    │       │   ├── products_bloc.dart
+    │       │   ├── products_event.dart
+    │       │   └── products_state.dart
+    │       ├── pages/
+    │       │   ├── products_list_page.dart   # Lista principal
+    │       │   ├── products_detail_page.dart # Detalhes
+    │       │   ├── cart_page.dart           # Carrinho
+    │       │   ├── category_page.dart       # Categorias
+    │       │   └── offers_page.dart         # Ofertas
+    │       └── widgets/
+    │           ├── product_card.dart
+    │           ├── products_filter.dart      # ✅ Modal de filtros
+    │           └── products_grid.dart
+    │
+    ├── client/                       # 🏢 Configuração de Clientes
+    │   ├── data/
+    │   │   ├── datasources/
+    │   │   │   └── client_remote_datasource.dart
+    │   │   ├── models/
+    │   │   │   └── client_model.dart
+    │   │   └── repositories/
+    │   │       └── client_repository_impl.dart
+    │   ├── domain/
+    │   │   ├── entities/
+    │   │   │   └── client.dart
+    │   │   ├── repositories/
+    │   │   │   └── client_repository.dart
+    │   │   └── usecases/
+    │   │       └── get_client_config.dart
+    │   └── presentation/
+    │       └── provider/
+    │           └── whitelabel_provider.dart
+    │
+    └── users/                        # 👤 Gestão de Usuários
+        ├── data/
+        │   ├── datasources/
+        │   │   └── user_remote_datasource.dart
+        │   ├── models/
+        │   │   └── user_model.dart
+        │   └── repositories/
+        │       └── user_repository_impl.dart
+        ├── domain/
+        │   ├── entities/
+        │   │   └── user.dart
+        │   ├── repositories/
+        │   │   └── user_repository.dart
+        │   └── usecases/
+        │       ├── get_user.dart
+        │       ├── get_profile.dart
+        │       ├── update_user.dart
+        │       ├── update_profile.dart
+        │       ├── change_password.dart
+        │       ├── delete_user.dart
+        │       └── get_all_users.dart
+        └── presentation/
+            ├── bloc/
+            │   ├── user_bloc.dart
+            │   ├── user_event.dart
+            │   └── user_state.dart
+            └── pages/
+                └── user_edit_page.dart
 ```
 
 ---
 
-## 🔌 API
+## 📌 API Endpoints
 
 ### Base URL
-
 ```
 http://localhost:3000/api
 ```
 
-### Endpoints Principais
-
-#### 🔐 Autenticação
+### 🔐 Autenticação
 
 ```http
-POST /auth/login
-POST /auth/register
+POST   /auth/login          # Login
+POST   /auth/register       # Registro
 ```
 
-#### 🛍️ Produtos
+### 🛍️ Produtos
 
 ```http
-GET    /products
-GET    /products/:id
-POST   /products/sync
-GET    /products?category=Computers&minPrice=100&maxPrice=500
+GET    /products                               # Listar produtos
+GET    /products/:id                           # Produto por ID
+POST   /products/sync                          # Sincronizar fornecedores
+GET    /products?category=Books&minPrice=10    # Filtrar produtos
 ```
 
-#### 👤 Usuários
+### 👤 Usuários
 
 ```http
-GET    /users
-GET    /users/profile
-PATCH  /users/profile
-PATCH  /users/:id
-DELETE /users/:id
-PATCH  /users/change-password
+GET    /users               # Listar usuários (admin)
+GET    /users/profile       # Perfil atual
+PATCH  /users/profile       # Atualizar perfil
+PATCH  /users/:id           # Atualizar usuário (admin)
+DELETE /users/:id           # Deletar usuário (admin)
+PATCH  /users/change-password  # Alterar senha
 ```
 
-#### 🏢 Clientes
+### 🏢 Clientes
 
 ```http
-GET /clients/current
-GET /clients/:id
+GET    /clients/current     # Config do cliente atual (por domínio)
+GET    /clients/:id         # Cliente por ID
 ```
 
 ### Exemplo de Requisição
@@ -440,32 +422,16 @@ GET /clients/:id
 # Login
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
+  -H "X-Client-Domain: devnology.com" \
   -d '{
     "email": "user@example.com",
     "password": "senha123"
   }'
 
 # Listar Produtos
-curl -X GET "http://localhost:3000/api/products?limit=20" \
-  -H "X-Client-Domain: devnology.com"
-```
-
----
-
-## 🧪 Testes
-
-### Executar Testes
-
-```bash
-# Todos os testes
-flutter test
-
-# Testes com coverage
-flutter test --coverage
-
-# Visualizar coverage
-genhtml coverage/lcov.info -o coverage/html
-open coverage/html/index.html
+curl -X GET "http://localhost:3000/api/products?limit=20&category=Books" \
+  -H "X-Client-Domain: devnology.com" \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ---
@@ -474,58 +440,34 @@ open coverage/html/index.html
 
 | Pacote | Versão | Descrição |
 |--------|--------|-----------|
-| flutter_bloc | ^8.1.3 | Gerenciamento de estado |
-| provider | ^6.1.1 | Injeção de dependências simples |
-| get_it | ^7.6.4 | Service locator |
-| http | ^1.1.0 | Cliente HTTP |
-| socket_io_client | ^2.0.3+1 | WebSocket |
-| dartz | ^0.10.1 | Programação funcional |
-| shared_preferences | ^2.2.2 | Cache local |
-| equatable | ^2.0.5 | Comparação de objetos |
-
----
-
-## 🌐 Executar para Web (Chrome)
-
-### Desenvolvimento Local
-
-```bash
-flutter run -d chrome --web-hostname=localhost --web-port=8000
-```
-
-### Produção (devnology.com)
-
-```bash
-flutter run -d chrome --web-hostname=devnology.com --web-port=8000
-```
-
-### Configurar Hosts (Opcional)
-
-Para testar diferentes clientes localmente, edite o arquivo de hosts:
-
-**Windows**: `C:\Windows\System32\drivers\etc\hosts`  
-**Mac/Linux**: `/etc/hosts`
-
-```
-127.0.0.1 devnology.com
-127.0.0.1 in8.com
-127.0.0.1 localhost
-```
-
-### Build de Produção
-
-```bash
-# Build otimizado
-flutter build web --release --web-renderer html
-
-# Servir localmente
-cd build/web
-python -m http.server 8000
-```
+| **flutter_bloc** | ^8.1.6 | Gerenciamento de estado (BLoC pattern) |
+| **provider** | ^6.1.5 | State management simples (CartProvider) |
+| **get_it** | ^7.7.0 | Dependency Injection (Service Locator) |
+| **http** | ^1.6.0 | Cliente HTTP |
+| **socket_io_client** | ^2.0.3+1 | WebSocket real-time |
+| **dartz** | ^0.10.1 | Programação funcional (Either, Option) |
+| **shared_preferences** | ^2.5.3 | Cache local (tokens, produtos, config) |
+| **equatable** | ^2.0.7 | Comparação de objetos (BLoC states) |
+| **cupertino_icons** | ^1.0.8 | Ícones iOS |
 
 ---
 
 ## 🔧 Troubleshooting
+
+### Problema: Cores continuam azuis (padrão)
+
+**Causa**: O tema não está sendo aplicado corretamente.
+
+**Solução**:
+1. Verifique se o `main.dart` está usando `WhitelabelTheme.getTheme(_currentHost)`
+2. Execute `flutter clean && flutter pub get`
+3. Reinicie o app com `--web-hostname` correto
+4. Verifique o console: deve aparecer `🌐 Domínio detectado: devnology.com`
+
+```bash
+# Exemplo correto
+flutter run -d chrome --web-hostname=devnology.com --web-port=8000
+```
 
 ### Problema: CORS Error
 
@@ -534,68 +476,147 @@ python -m http.server 8000
 ```typescript
 // main.ts
 app.enableCors({
-  origin: ['http://localhost:8000', 'http://devnology.com:8000'],
+  origin: [
+    'http://localhost:8000',
+    'http://devnology.com:8000',
+    'http://in8.com:8000'
+  ],
   credentials: true,
 });
 ```
 
-### Problema: Cache não funciona
+### Problema: Token não está sendo enviado
 
-**Solução**: Limpe o cache do SharedPreferences:
+**Solução**: Verifique se o token foi salvo corretamente:
 
 ```dart
-final prefs = await SharedPreferences.getInstance();
-await prefs.clear();
+// No console, procure por:
+✅ Token salvo: eyJhbGciOiJIUzI1NiI...
+🔐 Token adicionado ao header: eyJhbGciOiJIUzI1NiI...
 ```
+
+Se não aparecer, verifique `auth_remote_datasource.dart` linha ~50.
 
 ### Problema: WebSocket não conecta
 
-**Solução**: Verifique a URL e namespace:
+**Solução**:
+1. Verifique se o backend Socket.IO está rodando
+2. Confirme o namespace correto: `events`
+3. Verifique a URL base: deve ser sem `/api`
 
 ```dart
 // socket_io_service.dart
-final socketUrl = '$baseUrl/events'; // ✅ Namespace correto
+final baseUrl = AppConstants.baseUrl.replaceAll('/api', '');
+final socketUrl = '$baseUrl/events';
 ```
+
+### Problema: Produtos não aparecem
+
+**Solução**:
+1. Sincronize os produtos: botão "Sincronizar" na tela inicial
+2. Verifique se o backend está retornando produtos
+3. Limpe o cache: `SharedPreferences.clear()`
+
+```bash
+# No console, procure por:
+✅ 150 produtos salvos no cache
+```
+
+### Problema: Filtros não funcionam
+
+**Solução**:
+1. Os filtros são aplicados localmente no cache
+2. Se o cache está vazio, sincronize primeiro
+3. Categorias devem corresponder exatamente às do backend
 
 ---
 
-## 🚢 Deploy
+## 🎓 Conceitos Importantes
 
-### Deploy Web (Firebase Hosting)
+### 🎨 Whitelabel: Como Funciona?
+
+1. **Detecção do Domínio**: `Uri.base.host` pega o domínio do navegador
+2. **Busca das Cores**: `app_constants.dart` tem um mapa com as cores de cada cliente
+3. **Aplicação do Tema**: `WhitelabelTheme.getTheme()` cria o tema com as cores corretas
+4. **Renderização**: `MaterialApp` recebe o tema já pronto
+
+```dart
+// main.dart
+String get _currentHost => Uri.base.host;  // "devnology.com"
+final theme = WhitelabelTheme.getTheme(_currentHost);  // Tema verde
+
+MaterialApp(
+  theme: theme,  // ✅ Verde desde o primeiro frame
+  // ...
+)
+```
+
+### 💾 Cache: Estratégia de 24 Horas
+
+- Produtos são salvos em `SharedPreferences` após sincronização
+- Timestamp marca quando foi salvo
+- Se passou mais de 24h, busca novamente da API
+- Filtros são aplicados localmente (instantâneo)
+
+### 🔄 Sincronização de Produtos
+
+1. Backend conecta com fornecedores externos (APIs de terceiros)
+2. Salva produtos no banco de dados
+3. Flutter busca do backend e salva localmente
+4. Filtros acontecem no cache local
+
+### 🔐 Fluxo de Autenticação
+
+1. User faz login → recebe JWT token
+2. Token é salvo em `SharedPreferences`
+3. Todas as requisições incluem header `Authorization: Bearer TOKEN`
+4. Se token expirar (401), user é deslogado automaticamente
+
+---
+
+## 🚀 Deploy
+
+### Web (Firebase Hosting)
 
 ```bash
 # Build
 flutter build web --release
 
-# Firebase
+# Deploy
+firebase init
 firebase deploy
 ```
 
-### Deploy Android (Google Play)
+### Android (Google Play)
 
 ```bash
-# Build APK
+# Build APK (testes)
 flutter build apk --release
 
-# Build App Bundle (recomendado)
+# Build App Bundle (recomendado para produção)
 flutter build appbundle --release
 ```
 
-### Deploy iOS (App Store)
+### iOS (App Store)
 
 ```bash
+# Build
 flutter build ios --release
+
+# Abra no Xcode
+open ios/Runner.xcworkspace
 ```
 
 ---
 
-## 📝 Comandos Úteis
+## 📚 Comandos Úteis
 
 ```bash
 # Limpar build
 flutter clean
 
 # Atualizar dependências
+flutter pub get
 flutter pub upgrade
 
 # Analisar código
@@ -604,11 +625,14 @@ flutter analyze
 # Formatar código
 dart format lib/
 
-# Gerar ícones
-flutter pub run flutter_launcher_icons:main
-
 # Ver dependências desatualizadas
 flutter pub outdated
+
+# Rodar testes
+flutter test
+
+# Gerar coverage
+flutter test --coverage
 ```
 
 ---
@@ -616,9 +640,9 @@ flutter pub outdated
 ## 🤝 Contribuindo
 
 1. Fork o projeto
-2. Crie sua feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
+2. Crie sua feature branch (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
 5. Abra um Pull Request
 
 ---
@@ -629,26 +653,12 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ---
 
-## 👥 Autores
-
-- **Seu Nome** - *Desenvolvimento inicial* - [seu-usuario](https://github.com/seu-usuario)
-
----
-
 ## 🙏 Agradecimentos
 
 - Flutter Team
 - Clean Architecture by Robert C. Martin
-- BLoC Library
+- BLoC Library by Felix Angelov
 - Comunidade Flutter Brasil
-
----
-
-## 📞 Contato
-
-- Email: seu-email@example.com
-- LinkedIn: [seu-perfil](https://linkedin.com/in/seu-perfil)
-- Website: [seu-site.com](https://seu-site.com)
 
 ---
 

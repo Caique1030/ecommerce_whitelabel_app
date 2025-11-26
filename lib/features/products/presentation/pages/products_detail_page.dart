@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_bloc.dart';
 import 'package:flutter_ecommerce/features/products/presentation/bloc/cart_event.dart';
-=======
-import 'package:flutter_ecommerce/features/products/domain/usecases/cart_provider.dart';
-import 'package:provider/provider.dart';
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
 import '../../domain/entities/product.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -267,151 +262,31 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ],
         ),
       ),
-<<<<<<< HEAD
-     // No ProductDetailPage, substitua o botão no bottomNavigationBar:
-bottomNavigationBar: SafeArea(
-  child: Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: ElevatedButton(
-      onPressed: () {
-        // Adiciona o produto ao carrinho
-        context.read<CartBloc>().add(AddToCartEvent(product: product));
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Produto adicionado ao carrinho!'),
-=======
+      // No ProductDetailPage, substitua o botão no bottomNavigationBar:
       bottomNavigationBar: SafeArea(
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          child: Consumer<CartProvider>(
-            builder: (context, cart, child) {
-              final isInCart = cart.isInCart(widget.product.id);
+          child: ElevatedButton(
+            onPressed: () {
+              // Adiciona o produto ao carrinho
+              context.read<CartBloc>().add(AddToCartEvent(product: product));
 
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isInCart)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Produto já está no carrinho (${cart.getQuantity(widget.product.id)}x)',
-                            style: const TextStyle(
-                              color: Colors.green,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            cart.addItem(widget.product, quantity: _quantity);
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  isInCart
-                                      ? 'Quantidade atualizada no carrinho!'
-                                      : 'Produto adicionado ao carrinho!',
-                                ),
-                                duration: const Duration(seconds: 2),
-                                action: SnackBarAction(
-                                  label: 'Ver Carrinho',
-                                  onPressed: () {
-                                    // Navega para o carrinho
-                                    // Você pode ajustar isso de acordo com sua navegação
-                                    Navigator.of(context).popUntil(
-                                      (route) => route.isFirst,
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                          icon: Icon(
-                            isInCart
-                                ? Icons.add_shopping_cart
-                                : Icons.shopping_cart,
-                          ),
-                          label: Text(
-                            isInCart
-                                ? 'Adicionar Mais'
-                                : 'Adicionar ao Carrinho',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ),
-                      if (isInCart) ...[
-                        const SizedBox(width: 8),
-                        SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              cart.removeItem(widget.product.id);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Produto removido do carrinho'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                            },
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              side: const BorderSide(color: Colors.red),
-                            ),
-                            child: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Produto adicionado ao carrinho!'),
+                ),
               );
             },
->>>>>>> a4fc3639cd10a0fd867c95fa660e096105e523bf
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: const Text(
+              'Adicionar ao Carrinho',
+              style: TextStyle(fontSize: 16),
+            ),
           ),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
       ),
-      child: const Text(
-        'Adicionar ao Carrinho',
-        style: TextStyle(fontSize: 16),
-      ),
-    ),
-  ),
-),
     );
   }
 
