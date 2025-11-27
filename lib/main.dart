@@ -5,6 +5,7 @@ import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dar
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/pages/register_page.dart';
 import 'package:flutter_ecommerce/features/injection_container.dart' as di;
+import 'package:flutter_ecommerce/features/products/presentation/pages/cart_page.dart';
 import 'package:provider/provider.dart';
 
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -90,6 +91,7 @@ class MyApp extends StatelessWidget {
             '/login': (context) => const LoginPage(),
             '/register': (context) => const RegisterPage(),
             '/home': (context) => const MainNavigation(),
+            '/cart': (context) => const CartPage(),
           },
         ),
       ),

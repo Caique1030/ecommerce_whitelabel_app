@@ -18,7 +18,8 @@ class Order {
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       id: json['id'],
-      total: (json['total'] as num).toDouble(),
+      // ✅ CORREÇÃO: Converter string para double se necessário
+      total: _parseDouble(json['total']),
       status: json['status'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
@@ -26,6 +27,14 @@ class Order {
           .map((item) => OrderItem.fromJson(item))
           .toList(),
     );
+  }
+
+  // ✅ MÉTODO HELPER: Converte string ou num para double
+  static double _parseDouble(dynamic value) {
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.parse(value);
+    return 0.0;
   }
 }
 
@@ -50,11 +59,20 @@ class OrderItem {
     return OrderItem(
       id: json['id'],
       quantity: json['quantity'],
-      price: (json['price'] as num).toDouble(),
+      // ✅ CORREÇÃO: Converter string para double se necessário
+      price: _parseDouble(json['price']),
       productId: json['productId'],
       productName: json['product']?['name'] ?? 'Produto não encontrado',
       productImage: json['product']?['image'],
     );
+  }
+
+  // ✅ MÉTODO HELPER: Converte string ou num para double
+  static double _parseDouble(dynamic value) {
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.parse(value);
+    return 0.0;
   }
 
   double get total => price * quantity;

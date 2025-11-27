@@ -4,6 +4,8 @@ import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_bloc.dart
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/client/presentation/provider/whitelabel_provider.dart';
+import 'package:flutter_ecommerce/features/injection_container.dart';
+import 'package:flutter_ecommerce/features/orders/presentation/bloc/order_bloc.dart';
 import 'package:flutter_ecommerce/features/orders/presentation/pages/orders_page.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/pages/user_edit_page.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/pages/change_password_page.dart';
@@ -25,36 +27,77 @@ class _MorePageState extends State<MorePage> {
     super.initState();
     _socketService = context.read<SocketIOService>();
 
-    // Escuta atualizações de usuário via WebSocket
+    print('🔊 MorePage: Configurando listeners WebSocket');
+
+    // ✅ CRÍTICO: Escuta atualizações de usuário via WebSocket
     _socketService.onUserUpdated = (data) {
+      print('📡 MorePage: Recebeu evento user:updated');
+      print('📦 Dados recebidos: $data');
+
       final authState = context.read<AuthBloc>().state;
       if (authState is Authenticated) {
         // Verifica se o usuário atualizado é o atual
         if (data['id'] == authState.user.id) {
-          print('🔄 Perfil atualizado via WebSocket: $data');
+          print('✅ MorePage: Usuário atualizado é o atual, recarregando dados');
+
           // Recarrega as informações do usuário
           context.read<AuthBloc>().add(const CheckAuthenticationEvent());
+
+          // Mostra notificação
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('✅ Perfil atualizado'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        } else {
+          print(
+              'ℹ️ MorePage: Atualização de outro usuário (ID: ${data['id']})');
         }
       }
     };
 
     _socketService.onUserRemoved = (userId) {
+      print('🗑️ MorePage: Recebeu evento user:removed');
+      print('🆔 UserID removido: $userId');
+
       final authState = context.read<AuthBloc>().state;
       if (authState is Authenticated) {
         // Verifica se o usuário removido é o atual
         if (userId == authState.user.id) {
-          print('❌ Usuário removido via WebSocket');
+          print('⚠️ MorePage: Usuário atual foi removido, fazendo logout');
+
           // Desloga o usuário
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sua conta foi removida'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('❌ Sua conta foi removida'),
+                backgroundColor: Colors.red,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+
           context.read<AuthBloc>().add(const SignOutRequested());
+        } else {
+          print('ℹ️ MorePage: Outro usuário foi removido (ID: $userId)');
         }
       }
     };
+
+    print('✅ MorePage: Listeners configurados com sucesso');
+  }
+
+  @override
+  void dispose() {
+    print('🔇 MorePage: Removendo listeners WebSocket');
+    // Limpa os callbacks ao sair da página
+    _socketService.onUserUpdated = null;
+    _socketService.onUserRemoved = null;
+    super.dispose();
   }
 
   @override
@@ -62,6 +105,8 @@ class _MorePageState extends State<MorePage> {
     return Scaffold(
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
+          print('🔄 MorePage: AuthBloc state mudou - ${state.runtimeType}');
+
           if (state is Authenticated) {
             return _buildAuthenticatedContent(context, state);
           }
@@ -74,6 +119,8 @@ class _MorePageState extends State<MorePage> {
   Widget _buildAuthenticatedContent(BuildContext context, Authenticated state) {
     final whitelabelProvider = Provider.of<WhitelabelProvider>(context);
     final user = state.user;
+
+    print('👤 MorePage: Renderizando perfil de ${user.name}');
 
     return CustomScrollView(
       slivers: [
@@ -151,12 +198,22 @@ class _MorePageState extends State<MorePage> {
               icon: Icons.person_outline,
               title: 'Editar Perfil',
               subtitle: 'Alterar nome e informações',
-              onTap: () {
-                Navigator.of(context).push(
+              onTap: () async {
+                print('🔄 MorePage: Navegando para EditProfilePage');
+                final result = await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const EditProfilePage(),
                   ),
                 );
+
+                // Se result for true, significa que houve atualização
+                // O WebSocket já deve ter atualizado, mas podemos forçar um refresh
+                if (result == true && mounted) {
+                  print('✅ MorePage: Retornou da edição, forçando refresh');
+                  context
+                      .read<AuthBloc>()
+                      .add(const CheckAuthenticationEvent());
+                }
               },
             ),
             _buildMenuItem(
@@ -180,10 +237,12 @@ class _MorePageState extends State<MorePage> {
               title: 'Meus Pedidos',
               subtitle: 'Acompanhe o status dos seus pedidos',
               onTap: () {
-                // Navegar para a página de pedidos
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const OrdersPage(),
+                    builder: (context) => BlocProvider(
+                      create: (context) => sl<OrderBloc>(),
+                      child: const OrdersPage(),
+                    ),
                   ),
                 );
               },
@@ -200,6 +259,32 @@ class _MorePageState extends State<MorePage> {
               subtitle: whitelabelProvider.client?.name ?? 'E-Commerce',
               onTap: () {
                 _showAboutDialog(context, whitelabelProvider);
+              },
+            ),
+
+            // Status de conexão WebSocket
+            _buildMenuItem(
+              context,
+              icon: _socketService.isConnected
+                  ? Icons.cloud_done
+                  : Icons.cloud_off,
+              title: 'Status de Conexão',
+              subtitle: _socketService.isConnected
+                  ? 'Conectado ao servidor'
+                  : 'Desconectado',
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      _socketService.isConnected
+                          ? '✅ Conectado - Você receberá atualizações em tempo real'
+                          : '⚠️ Desconectado - Reconecte para receber atualizações',
+                    ),
+                    backgroundColor: _socketService.isConnected
+                        ? Colors.green
+                        : Colors.orange,
+                  ),
+                );
               },
             ),
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_bloc.dart';
@@ -27,13 +26,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Inicializa os controllers apenas uma vez
     if (!_isInitialized) {
       final authState = context.read<AuthBloc>().state;
       if (authState is Authenticated) {
         _nameController.text = authState.user.name;
         _emailController.text = authState.user.email;
-        // Phone não está disponível no User do auth, mas pode ser carregado
       }
       _isInitialized = true;
     }
@@ -72,7 +69,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           : _phoneController.text.trim(),
     );
 
-    // Usa UpdateProfileEvent ao invés de UpdateUserEvent
+    // Dispara o evento de atualização
     context.read<UserBloc>().add(
           UpdateProfileEvent(user: updatedUser),
         );
@@ -88,11 +85,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           backgroundColor: Theme.of(context).primaryColor,
         ),
         body: BlocConsumer<UserBloc, UserState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state is UserUpdated) {
-              // Atualiza o AuthBloc com os novos dados
-              context.read<AuthBloc>().add(const CheckAuthenticationEvent());
-
+              // ✅ Mostra mensagem de sucesso
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Perfil atualizado com sucesso!'),
@@ -101,12 +96,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               );
 
-              // Aguarda um pouco antes de voltar para garantir que o AuthBloc atualizou
-              Future.delayed(const Duration(milliseconds: 500), () {
-                if (mounted) {
-                  Navigator.of(context).pop();
-                }
-              });
+              // ✅ Aguarda um pouco e volta
+              // O WebSocket vai atualizar o AuthBloc automaticamente
+              await Future.delayed(const Duration(milliseconds: 500));
+
+              if (mounted) {
+                Navigator.of(context).pop(true);
+              }
             } else if (state is UserError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

@@ -11,14 +11,20 @@ import 'package:flutter_ecommerce/features/products/presentation/pages/products_
 import 'package:flutter_ecommerce/features/products/domain/usecases/cart_provider.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({Key? key}) : super(key: key);
+  // ✅ ADICIONADO: Parâmetro para definir a aba inicial
+  final int initialIndex;
+
+  const MainNavigation({
+    Key? key,
+    this.initialIndex = 0, // Padrão: primeira aba (Início)
+  }) : super(key: key);
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   // Lista de páginas
   late final List<Widget> _pages;
@@ -26,6 +32,9 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   void initState() {
     super.initState();
+    // ✅ MODIFICADO: Usar o initialIndex passado como parâmetro
+    _currentIndex = widget.initialIndex;
+
     _pages = [
       const ProductsListPage(), // Início
       const CategoriesPage(), // Categorias

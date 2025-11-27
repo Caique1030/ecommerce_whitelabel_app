@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/usecases/cart_provider.dart';
 import '../../domain/entities/product.dart';
+import '../pages/cart_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
@@ -261,7 +262,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ],
         ),
       ),
-      // ✅ CORRIGIDO: Usando CartProvider ao invés de CartBloc
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -282,8 +282,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   action: SnackBarAction(
                     label: 'Ver Carrinho',
                     onPressed: () {
-                      // Navega para a página do carrinho
-                      Navigator.pushNamed(context, '/cart');
+                      // ✅ CORREÇÃO: Usar Navigator.push ao invés de pushNamed
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const CartPage(),
+                        ),
+                      );
                     },
                   ),
                 ),

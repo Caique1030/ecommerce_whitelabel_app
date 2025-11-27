@@ -31,8 +31,8 @@ class _ProductsListPageState extends State<ProductsListPage> {
 
   /// Inicializa a aplicação na ordem correta:
   /// 1. Conecta ao Socket.IO
-  /// 2. Sincroniza produtos dos fornecedores
-  /// 3. Carrega produtos do banco
+  /// 2. Carrega produtos existentes
+  /// 3. Só sincroniza se não houver produtos
   Future<void> _initializeApp() async {
     try {
       // 1. Conectar ao Socket.IO
@@ -40,12 +40,12 @@ class _ProductsListPageState extends State<ProductsListPage> {
       await _socketService.connect();
       print('✅ Socket.IO conectado com sucesso');
 
-      // 2. Sincronizar produtos dos fornecedores
-      print('🔄 Iniciando sincronização de produtos...');
-      context.read<ProductsBloc>().add(const SyncProductsEvent());
+      // 2. Carregar produtos existentes (do cache ou API)
+      print('📦 Carregando produtos...');
+      context.read<ProductsBloc>().add(const LoadProducts());
 
-      // O evento LoadProducts será disparado automaticamente
-      // após a sincronização ser concluída (veja o ProductsBloc)
+      // 3. A sincronização só acontecerá se LoadProducts retornar vazio
+      // (veja a lógica no ProductsBloc)
     } catch (e) {
       print('❌ Erro ao inicializar aplicação: $e');
       // Mesmo com erro, tenta carregar produtos existentes

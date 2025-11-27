@@ -51,8 +51,8 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
     final result = await getProducts(
       GetProductsParams(
-        limit: -1, // ✅ Adicione isso
-        forceRefresh: event.forceRefresh, // ✅ Adicione isso
+        limit: -1,
+        forceRefresh: event.forceRefresh,
       ),
     );
 
@@ -60,8 +60,17 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       (failure) => emit(ProductsError(message: failure.message)),
       (products) {
         if (products.isEmpty) {
-          emit(const ProductsEmpty());
+          // ✅ Se não houver produtos, dispara a sincronização automaticamente
+          // MAS apenas se não for uma tentativa de refresh forçado
+          if (!event.forceRefresh) {
+            print(
+                '📦 Nenhum produto encontrado. Iniciando sincronização automática...');
+            add(const SyncProductsEvent());
+          } else {
+            emit(const ProductsEmpty());
+          }
         } else {
+          print('✅ ${products.length} produtos carregados com sucesso');
           emit(ProductsLoaded(products: products));
         }
       },
@@ -128,7 +137,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
     final result = await getProducts(
       const GetProductsParams(
-        limit: -1, // ✅ Adicione isso
+        limit: -1,
       ),
     );
 
@@ -143,8 +152,4 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       },
     );
   }
-
-
-  
-
 }

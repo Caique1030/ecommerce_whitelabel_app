@@ -167,21 +167,9 @@ Future<void> init() async {
 
   //! Features - Orders
   // Repository - CORREÇÃO AQUI
-  sl.registerFactory<OrderRepository>(() {
-    final sharedPrefs = sl<SharedPreferences>();
-    final whitelabelProvider = sl<WhitelabelProvider>();
-    
-    final token = sharedPrefs.getString('token') ?? '';
-    final clientDomain = whitelabelProvider.client?.domain ?? 'default';
-    final baseUrl = 'http://localhost:3000/api'; // Ajuste conforme sua URL
-    
-    return OrderRepositoryImpl(
-      baseUrl: baseUrl,
-      token: token,
-      clientDomain: clientDomain,
-    );
-  });
-
+  sl.registerLazySingleton<OrderRepository>(
+    () => OrderRepositoryImpl(apiClient: sl()),
+  );
   // Use cases
   sl.registerLazySingleton(() => GetOrders(sl()));
 

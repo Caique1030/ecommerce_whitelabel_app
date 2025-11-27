@@ -14,6 +14,7 @@ class AppConstants {
   static const String clientsEndpoint = '/clients';
   static const String suppliersEndpoint = '/suppliers';
   static const String usersEndpoint = '/users';
+  static const String ordersEndpoint = '/orders';
 
   // Storage Keys
   static const String accessTokenKey = 'access_token';
