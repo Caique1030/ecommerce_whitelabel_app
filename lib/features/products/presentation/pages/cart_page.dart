@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ecommerce/features/injection_container.dart';
+import 'package:flutter_ecommerce/features/orders/presentation/bloc/order_bloc.dart';
+import 'package:flutter_ecommerce/features/orders/presentation/pages/orders_page.dart';
 import 'package:flutter_ecommerce/features/products/domain/usecases/cart_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -67,7 +71,6 @@ class _CartPageState extends State<CartPage> {
           const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: () {
-              // Volta para a página inicial através do Navigator
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             icon: const Icon(Icons.shopping_bag),
@@ -281,7 +284,7 @@ class _CartPageState extends State<CartPage> {
     });
 
     try {
-      // Simula o processamento da compra
+      // AGORA CHAMA O CHECKOUT QUE VAI CRIAR O PEDIDO NO BACKEND
       final success = await cart.checkout();
 
       if (!mounted) return;
@@ -293,6 +296,14 @@ class _CartPageState extends State<CartPage> {
       if (success) {
         // Mostra dialog de sucesso
         _showSuccessDialog(context);
+      } else {
+        // Mostra erro se o pedido não foi criado
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao processar pedido. Tente novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       if (!mounted) return;
@@ -343,7 +354,16 @@ class _CartPageState extends State<CartPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Sua compra foi realizada com sucesso!',
+              'Seu pedido foi criado com sucesso!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Acompanhe o status em "Meus Pedidos"',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[600],
@@ -373,6 +393,27 @@ class _CartPageState extends State<CartPage> {
             ),
             child: const Text(
               'Continuar Comprando',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              // Navega para a página de pedidos
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider(
+                    create: (context) => sl<OrderBloc>(),
+                    child: const OrdersPage(),
+                  ),
+                ),
+              );
+            },
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            ),
+            child: const Text(
+              'Ver Meus Pedidos',
               style: TextStyle(fontSize: 16),
             ),
           ),

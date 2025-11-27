@@ -12,6 +12,10 @@ import 'package:flutter_ecommerce/features/client/data/repositories/client_repos
 import 'package:flutter_ecommerce/features/client/domain/repositories/client_repository.dart';
 import 'package:flutter_ecommerce/features/client/domain/usecases/GetClientConfig.dart';
 import 'package:flutter_ecommerce/features/client/presentation/provider/whitelabel_provider.dart';
+import 'package:flutter_ecommerce/features/orders/data/repositories/order_repository_impl.dart';
+import 'package:flutter_ecommerce/features/orders/domain/repositories/order_repository.dart';
+import 'package:flutter_ecommerce/features/orders/domain/usecases/get_orders.dart';
+import 'package:flutter_ecommerce/features/orders/presentation/bloc/order_bloc.dart';
 import 'package:flutter_ecommerce/features/products/data/datasources/product_remote_datasources.dart';
 import 'package:flutter_ecommerce/features/products/data/repositories/products_repository_impl.dart';
 import 'package:flutter_ecommerce/features/products/domain/repositories/products_repository.dart';
@@ -40,6 +44,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  //! External
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
+  sl.registerLazySingleton(() => http.Client());
+
+  //! Core
+  sl.registerLazySingleton(
+    () => ApiClient(httpClient: sl(), sharedPreferences: sl()),
+  );
+
+  // Socket.IO Service
+  sl.registerLazySingleton(
+    () => SocketIOService(sharedPreferences: sl()),
+  );
+
   //! Features - Auth
   // Bloc
   sl.registerFactory(
@@ -146,21 +165,29 @@ Future<void> init() async {
     () => ClientRemoteDataSourceImpl(apiClient: sl(), sharedPreferences: sl()),
   );
 
-  //! Core
-  sl.registerLazySingleton(
-    () => ApiClient(httpClient: sl(), sharedPreferences: sl()),
-  );
+  //! Features - Orders
+  // Repository - CORREÇÃO AQUI
+  sl.registerFactory<OrderRepository>(() {
+    final sharedPrefs = sl<SharedPreferences>();
+    final whitelabelProvider = sl<WhitelabelProvider>();
+    
+    final token = sharedPrefs.getString('token') ?? '';
+    final clientDomain = whitelabelProvider.client?.domain ?? 'default';
+    final baseUrl = 'http://localhost:3000/api'; // Ajuste conforme sua URL
+    
+    return OrderRepositoryImpl(
+      baseUrl: baseUrl,
+      token: token,
+      clientDomain: clientDomain,
+    );
+  });
 
-  // Socket.IO Service
-  sl.registerLazySingleton(
-    () => SocketIOService(sharedPreferences: sl()),
-  );
+  // Use cases
+  sl.registerLazySingleton(() => GetOrders(sl()));
 
-  // Cart Provider
-  sl.registerLazySingleton(() => CartProvider());
+  // Bloc
+  sl.registerFactory(() => OrderBloc(getOrders: sl()));
 
-  //! External
-  final sharedPreferences = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => sharedPreferences);
-  sl.registerLazySingleton(() => http.Client());
+  //! Cart Provider
+  sl.registerFactory<CartProvider>(() => CartProvider(orderRepository: sl()));
 }

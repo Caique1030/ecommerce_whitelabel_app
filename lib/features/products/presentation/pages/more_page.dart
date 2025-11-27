@@ -4,6 +4,7 @@ import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_bloc.dart
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/client/presentation/provider/whitelabel_provider.dart';
+import 'package:flutter_ecommerce/features/orders/presentation/pages/orders_page.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/pages/user_edit_page.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/pages/change_password_page.dart';
 import 'package:provider/provider.dart';
@@ -173,19 +174,16 @@ class _MorePageState extends State<MorePage> {
             ),
 
             const Divider(height: 32),
-
-            // Seção: Compras
-            _buildSectionHeader(context, 'Minhas Compras'),
             _buildMenuItem(
               context,
               icon: Icons.shopping_bag_outlined,
               title: 'Meus Pedidos',
               subtitle: 'Acompanhe o status dos seus pedidos',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidade em desenvolvimento'),
-                    backgroundColor: Colors.orange,
+                // Navegar para a página de pedidos
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const OrdersPage(),
                   ),
                 );
               },

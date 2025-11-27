@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_ecommerce/features/products/domain/entities/product.dart';
+import 'package:flutter_ecommerce/features/orders/domain/repositories/order_repository.dart';
 
 class CartItem {
   final Product product;
@@ -11,10 +12,22 @@ class CartItem {
   });
 
   double get totalPrice => product.finalPrice * quantity;
+
+  // Método para converter em Map para a API
+  Map<String, dynamic> toOrderItemMap() {
+    return {
+      'productId': product.id,
+      'quantity': quantity,
+      'price': product.finalPrice,
+    };
+  }
 }
 
 class CartProvider with ChangeNotifier {
   final List<CartItem> _items = [];
+  final OrderRepository orderRepository;
+
+  CartProvider({required this.orderRepository});
 
   List<CartItem> get items => List.unmodifiable(_items);
 
@@ -32,16 +45,13 @@ class CartProvider with ChangeNotifier {
 
   /// Adiciona um produto ao carrinho
   void addItem(Product product, {int quantity = 1}) {
-    // Verifica se o produto já está no carrinho
     final existingIndex = _items.indexWhere(
       (item) => item.product.id == product.id,
     );
 
     if (existingIndex >= 0) {
-      // Se já existe, apenas aumenta a quantidade
       _items[existingIndex].quantity += quantity;
     } else {
-      // Se não existe, adiciona novo item
       _items.add(CartItem(product: product, quantity: quantity));
     }
 
@@ -119,14 +129,40 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Finaliza a compra (apenas limpa o carrinho)
+  /// Finaliza a compra criando um pedido
   Future<bool> checkout() async {
-    // Simula um delay de processamento
-    await Future.delayed(const Duration(seconds: 2));
+    if (_items.isEmpty) {
+      return false;
+    }
 
-    // Limpa o carrinho após "processar" a compra
-    clear();
+    try {
+      // Prepara os itens para o pedido
+      final orderItems = _items.map((item) => item.toOrderItemMap()).toList();
 
-    return true;
+      print('🛒 Criando pedido com ${orderItems.length} itens');
+      print('💰 Total: R\$ $totalPrice');
+
+      // Cria o pedido no backend
+      final result = await orderRepository.createOrder(
+        items: orderItems,
+        total: totalPrice,
+      );
+
+      return result.fold(
+        (failure) {
+          print('❌ Falha ao criar pedido: ${failure.message}');
+          return false;
+        },
+        (order) {
+          print('✅ Pedido criado com sucesso: ${order.id}');
+          // Limpa o carrinho apenas se o pedido foi criado com sucesso
+          clear();
+          return true;
+        },
+      );
+    } catch (e) {
+      print('❌ Erro durante checkout: $e');
+      return false;
+    }
   }
 }
