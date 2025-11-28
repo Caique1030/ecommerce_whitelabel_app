@@ -14,7 +14,6 @@ class _OrdersPageState extends State<OrdersPage> {
   @override
   void initState() {
     super.initState();
-    // Carrega os pedidos ao iniciar a página
     context.read<OrderBloc>().add(LoadOrdersEvent());
   }
 

@@ -24,7 +24,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Imagem do produto
             if (widget.product.image != null)
               Image.network(
                 widget.product.image!,
@@ -54,7 +53,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Nome do produto
                   Text(
                     widget.product.name,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -63,7 +61,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                   const SizedBox(height: 8),
 
-                  // Categoria
                   if (widget.product.category != null)
                     Chip(
                       label: Text(widget.product.category!),
@@ -74,7 +71,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
                   const SizedBox(height: 16),
 
-                  // Preço
                   Row(
                     children: [
                       if (widget.product.hasDiscount) ...[
@@ -132,7 +128,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
                   const SizedBox(height: 24),
 
-                  // Seletor de quantidade
                   Row(
                     children: [
                       Text(
@@ -184,7 +179,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
                   const SizedBox(height: 24),
 
-                  // Descrição
                   if (widget.product.description != null) ...[
                     Text(
                       'Descrição',
@@ -200,21 +194,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     const SizedBox(height: 24),
                   ],
 
-                  // Material
                   if (widget.product.material != null) ...[
                     _buildInfoRow(
                         context, 'Material', widget.product.material!),
                     const SizedBox(height: 8),
                   ],
 
-                  // Departamento
                   if (widget.product.department != null) ...[
                     _buildInfoRow(
                         context, 'Departamento', widget.product.department!),
                     const SizedBox(height: 24),
                   ],
 
-                  // Galeria
                   if (widget.product.gallery != null &&
                       widget.product.gallery!.isNotEmpty) ...[
                     Text(
@@ -255,7 +246,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                   ],
 
-                  const SizedBox(height: 80), // Espaço para o botão fixo
+                  const SizedBox(height: 80),
                 ],
               ),
             ),
@@ -267,7 +258,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
             onPressed: () {
-              // Adiciona o produto ao carrinho usando CartProvider
               final cartProvider = context.read<CartProvider>();
               cartProvider.addItem(widget.product, quantity: _quantity);
 
@@ -282,7 +272,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   action: SnackBarAction(
                     label: 'Ver Carrinho',
                     onPressed: () {
-                      // ✅ CORREÇÃO: Usar Navigator.push ao invés de pushNamed
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const CartPage(),
@@ -293,7 +282,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
               );
 
-              // Reseta a quantidade após adicionar
               setState(() {
                 _quantity = 1;
               });

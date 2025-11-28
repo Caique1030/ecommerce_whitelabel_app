@@ -25,7 +25,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     on<ResetFilters>(_onResetFilters);
   }
 
-  /// Sincroniza produtos dos fornecedores
   Future<void> _onSyncProducts(
     SyncProductsEvent event,
     Emitter<ProductsState> emit,
@@ -37,7 +36,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     result.fold(
       (failure) => emit(ProductsError(message: failure.message)),
       (_) async {
-        // Após sincronizar, carrega os produtos
         add(const LoadProducts(forceRefresh: true));
       },
     );
@@ -60,17 +58,12 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       (failure) => emit(ProductsError(message: failure.message)),
       (products) {
         if (products.isEmpty) {
-          // ✅ Se não houver produtos, dispara a sincronização automaticamente
-          // MAS apenas se não for uma tentativa de refresh forçado
           if (!event.forceRefresh) {
-            print(
-                '📦 Nenhum produto encontrado. Iniciando sincronização automática...');
             add(const SyncProductsEvent());
           } else {
             emit(const ProductsEmpty());
           }
         } else {
-          print('✅ ${products.length} produtos carregados com sucesso');
           emit(ProductsLoaded(products: products));
         }
       },

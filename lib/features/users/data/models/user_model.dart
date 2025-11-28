@@ -7,16 +7,16 @@ class UserModel extends User {
     required String email,
     String? phone,
     String? avatarUrl,
-    required String role, // ✅ ADICIONADO
-    required String clientId, // ✅ ADICIONADO
+    required String role, 
+    required String clientId, 
   }) : super(
           id: id,
           name: name,
           email: email,
           phone: phone,
           avatarUrl: avatarUrl,
-          role: role, // ✅ ADICIONADO
-          clientId: clientId, // ✅ ADICIONADO
+          role: role, 
+          clientId: clientId, 
         );
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -26,8 +26,8 @@ class UserModel extends User {
       email: json['email'] ?? '',
       phone: json['phone'],
       avatarUrl: json['avatar_url'] ?? json['avatarUrl'],
-      role: json['role'] ?? 'user', // ✅ ADICIONADO (com valor padrão)
-      clientId: json['clientId'] ?? json['client_id'] ?? '', // ✅ ADICIONADO (com valor padrão)
+      role: json['role'] ?? 'user', 
+      clientId: json['clientId'] ?? json['client_id'] ?? '', 
     );
   }
 
@@ -38,8 +38,8 @@ class UserModel extends User {
       'email': email,
       'phone': phone,
       'avatar_url': avatarUrl,
-      'role': role, // ✅ ADICIONADO
-      'clientId': clientId, // ✅ ADICIONADO
+      'role': role, 
+      'clientId': clientId, 
     };
   }
 
@@ -50,12 +50,12 @@ class UserModel extends User {
       email: user.email,
       phone: user.phone,
       avatarUrl: user.avatarUrl,
-      role: user.role, // ✅ ADICIONADO
-      clientId: user.clientId, // ✅ ADICIONADO
+      role: user.role, 
+      clientId: user.clientId, 
     );
   }
 
-  // ✅ MÉTODO ADICIONAL: Para criar cópia com atualizações
+  
   UserModel copyWith({
     String? id,
     String? name,

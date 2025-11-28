@@ -62,7 +62,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
-    // ✅ USA OS DADOS ATUAIS E ATUALIZA APENAS OS CAMPOS EDITADOS
     final updatedUser = User(
       id: authState.user.id,
       name: _nameController.text.trim(),
@@ -70,12 +69,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
       phone: _phoneController.text.trim().isEmpty
           ? null
           : _phoneController.text.trim(),
-      avatarUrl: authState.user.avatarUrl, // ✅ MANTÉM O AVATAR ATUAL
-      role: authState.user.role, // ✅ MANTÉM A ROLE ATUAL
-      clientId: authState.user.clientId, // ✅ MANTÉM O CLIENT_ID ATUAL
+      avatarUrl: authState.user.avatarUrl, 
+      role: authState.user.role, 
+      clientId: authState.user.clientId, 
     );
 
-    // Dispara o evento de atualização
+    
     context.read<UserBloc>().add(
           UpdateProfileEvent(user: updatedUser),
         );
@@ -92,16 +91,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         body: BlocConsumer<UserBloc, UserState>(
           listener: (context, state) async {
-            // ✅ GUARDA O CONTEXT ANTES DO ASYNC
+            
             final currentContext = context;
             
             if (state is UserUpdated) {
-              // ✅ ATUALIZAÇÃO CRÍTICA: Notifica o AuthBloc sobre a mudança
+              
               currentContext.read<AuthBloc>().add(
                     UserProfileUpdated(user: state.user),
                   );
 
-              // ✅ Mostra mensagem de sucesso
+              
               ScaffoldMessenger.of(currentContext).showSnackBar(
                 const SnackBar(
                   content: Text('Perfil atualizado com sucesso!'),
@@ -110,7 +109,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               );
 
-              // ✅ Aguarda um pouco e volta
+              
               await Future.delayed(const Duration(milliseconds: 500));
 
               if (mounted) {
@@ -143,7 +142,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Avatar do usuário
+                        
                         CircleAvatar(
                           radius: 50,
                           backgroundColor: Theme.of(context).primaryColor,
@@ -168,7 +167,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Campo Nome
+                        
                         TextFormField(
                           controller: _nameController,
                           enabled: !isLoading,
@@ -190,7 +189,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Campo Email
+                        
                         TextFormField(
                           controller: _emailController,
                           enabled: !isLoading,
@@ -214,7 +213,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Campo Telefone
+                        
                         TextFormField(
                           controller: _phoneController,
                           enabled: !isLoading,
@@ -228,7 +227,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Informações não editáveis
+                        
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -258,7 +257,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Botão Salvar
+                        
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -291,7 +290,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Botão Cancelar
+                        
                         SizedBox(
                           width: double.infinity,
                           height: 50,

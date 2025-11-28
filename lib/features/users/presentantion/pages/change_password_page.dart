@@ -22,7 +22,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
 
-  // Indicadores de força da senha
   bool _hasMinLength = false;
   bool _hasUppercase = false;
   bool _hasLowercase = false;
@@ -171,7 +170,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Ícone de cadeado
                       Icon(
                         Icons.lock_reset,
                         size: 80,
@@ -179,7 +177,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Título
                       Text(
                         'Alterar Senha',
                         style:
@@ -196,7 +193,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       ),
                       const SizedBox(height: 32),
 
-                      // Senha atual
                       TextFormField(
                         controller: _oldPasswordController,
                         enabled: !isLoading,
@@ -266,7 +262,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Indicador de força da senha
                       if (_newPasswordController.text.isNotEmpty) ...[
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -294,7 +289,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Requisitos da senha
                             _buildRequirement(
                               'Mínimo de 8 caracteres',
                               _hasMinLength,
@@ -320,7 +314,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         const SizedBox(height: 20),
                       ],
 
-                      // Confirmar senha
                       TextFormField(
                         controller: _confirmPasswordController,
                         enabled: !isLoading,
@@ -356,7 +349,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       ),
                       const SizedBox(height: 32),
 
-                      // Botão de alterar senha
                       ElevatedButton.icon(
                         onPressed:
                             isLoading ? null : () => _changePassword(context),
@@ -382,7 +374,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Botão de cancelar
                       if (!isLoading)
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(),
@@ -391,7 +382,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
                       const SizedBox(height: 24),
 
-                      // Dicas de segurança
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(

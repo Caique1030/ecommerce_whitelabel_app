@@ -1,7 +1,6 @@
 class DomainHelper {
   static String getCurrentDomain() {
-    // Em produção, você pegaria o domínio real
-    // Por enquanto, retorna localhost para desenvolvimento
+
     return 'localhost:3000';
   }
 

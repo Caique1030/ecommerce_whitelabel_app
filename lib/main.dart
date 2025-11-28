@@ -24,27 +24,21 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // ✅ Detecta o domínio atual imediatamente
   String get _currentHost {
     try {
       final host = Uri.base.host;
-      print('🌐 Domínio detectado em main.dart: $host');
       return host;
     } catch (e) {
-      print('⚠️ Erro ao detectar domínio: $e');
       return 'localhost';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Aplica o tema baseado no domínio IMEDIATAMENTE
     final theme = WhitelabelTheme.getTheme(_currentHost);
-    print('🎨 Tema aplicado no main.dart para host: $_currentHost');
 
     return MultiProvider(
       providers: [
-        // ✅ CRÍTICO: Usar a MESMA instância do Service Locator
         ChangeNotifierProvider<CartProvider>.value(
           value: di.sl<CartProvider>(),
         ),
@@ -64,7 +58,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'E-Commerce',
           debugShowCheckedModeBanner: false,
-          theme: theme, // ✅ Tema aplicado diretamente do domínio
+          theme: theme,
 
           initialRoute: '/auth-check',
 

@@ -31,7 +31,6 @@ class LoginPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo ou título
                   Icon(
                     Icons.shopping_bag,
                     size: 80,
@@ -54,12 +53,10 @@ class LoginPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 48),
 
-                  // Formulário de login
                   const LoginForm(),
 
                   const SizedBox(height: 24),
 
-                  // Link para registro
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

@@ -24,14 +24,13 @@
 
 Sistema de e-commerce **whitelabel** desenvolvido em Flutter que permite múltiplos clientes (tenants) utilizarem a mesma base de código com diferentes identidades visuais e configurações. O app consome uma API NestJS e suporta múltiplos fornecedores de produtos com sincronização automática.
 
-### ✨ Principais Diferenciais
+### ✨ Principais Diferenciaiss
 
 - 🎨 **Whitelabel Dinâmico**: Temas aplicados instantaneamente baseados no domínio (sem dependência de API)
 - 🏢 **Multi-tenant**: Suporta múltiplos clientes na mesma aplicação
 - 🔄 **Sincronização Automática**: Integração com múltiplos fornecedores externos
 - 💾 **Cache Inteligente**: Sistema de cache local com SharedPreferences (validade de 24h)
 - 🔐 **Autenticação JWT**: Sistema seguro de autenticação com refresh token
-- 🌐 **WebSocket Real-time**: Atualizações em tempo real via Socket.IO
 - 📱 **Cross-platform**: Web, iOS e Android com código único
 - 🛒 **Carrinho Completo**: Sistema de carrinho com Provider e gestão de estado
 
@@ -54,7 +53,6 @@ Sistema de e-commerce **whitelabel** desenvolvido em Flutter que permite múltip
 - ✅ **Autenticação**: Login e registro com validação
 - ✅ **JWT**: Tokens salvos localmente com SharedPreferences
 - ✅ **Perfil**: Visualização e edição de dados pessoais
-- ✅ **Atualização em Tempo Real**: WebSocket notifica alterações no perfil
 - ✅ **Segurança**: Change password, delete account
 
 ### 🎨 Whitelabel & Temas
@@ -118,9 +116,6 @@ Edite o arquivo `lib/core/constants/app_constants.dart`:
 class AppConstants {
   // 🔧 URL Base da API
   static const String baseUrl = 'http://localhost:3000/api';
-  
-  // 🔧 WebSocket Namespace
-  static const String wsNamespace = 'events';
   
   // 🔧 Domínios Whitelabel
   static const Map<String, String> clientDomains = {
@@ -250,8 +245,6 @@ lib/
 │   │   └── failures.dart             # Tipos de falhas
 │   ├── network/
 │   │   └── api_client.dart           # Cliente HTTP + interceptors
-│   ├── services/
-│   │   └── socket_io_service.dart    # WebSocket service
 │   ├── navigation/
 │   │   └── main_navigation.dart      # Bottom Navigation
 │   └── theme/
@@ -342,6 +335,30 @@ lib/
     │   └── presentation/
     │       └── provider/
     │           └── whitelabel_provider.dart
+    │
+    ├── orders/                       # 🏢 Configuração de Pedidos
+    │   ├── data/
+    │   │   ├── datasources/
+    │   │   │   └── order_remote_datasource.dart
+    │   │   ├── models/
+    │   │   │   └── orders_model.dart
+    │   │   └── repositories/
+    │   │       └── orders_repository_impl.dart
+    │   ├── domain/
+    │   │   ├── entities/
+    │   │   │   └── orders.dart
+    │   │   ├── repositories/
+    │   │   │   └── orders_repository.dart
+    │   │   └── usecases/
+    │   │       └── get_orders.dart
+    │   └── presentation/
+    |      ├── bloc/
+    |        │   ├── order_bloc.dart
+    |        │   ├── order_event.dart
+    |        │   └── order_state.dart
+    |        └── pages/
+    |            └── order_page.dart
+    |
     │
     └── users/                        # 👤 Gestão de Usuários
         ├── data/
@@ -444,7 +461,6 @@ curl -X GET "http://localhost:3000/api/products?limit=20&category=Books" \
 | **provider** | ^6.1.5 | State management simples (CartProvider) |
 | **get_it** | ^7.7.0 | Dependency Injection (Service Locator) |
 | **http** | ^1.6.0 | Cliente HTTP |
-| **socket_io_client** | ^2.0.3+1 | WebSocket real-time |
 | **dartz** | ^0.10.1 | Programação funcional (Either, Option) |
 | **shared_preferences** | ^2.5.3 | Cache local (tokens, produtos, config) |
 | **equatable** | ^2.0.7 | Comparação de objetos (BLoC states) |

@@ -42,7 +42,6 @@ class SignOutRequested extends AuthEvent {
 class CheckAuthenticationEvent extends AuthEvent {
   const CheckAuthenticationEvent();
 }
-// ✅ NOVO EVENTO: Para atualizar o usuário no AuthBloc
 class UserProfileUpdated extends AuthEvent {
   final User user;
 

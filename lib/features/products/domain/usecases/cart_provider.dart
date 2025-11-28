@@ -13,7 +13,6 @@ class CartItem {
 
   double get totalPrice => product.finalPrice * quantity;
 
-  // Método para converter em Map para a API
   Map<String, dynamic> toOrderItemMap() {
     return {
       'productId': product.id,
@@ -43,7 +42,6 @@ class CartProvider with ChangeNotifier {
 
   bool get isEmpty => _items.isEmpty;
 
-  /// Adiciona um produto ao carrinho
   void addItem(Product product, {int quantity = 1}) {
     final existingIndex = _items.indexWhere(
       (item) => item.product.id == product.id,
@@ -58,13 +56,11 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Remove um produto do carrinho
   void removeItem(String productId) {
     _items.removeWhere((item) => item.product.id == productId);
     notifyListeners();
   }
 
-  /// Atualiza a quantidade de um item
   void updateQuantity(String productId, int newQuantity) {
     if (newQuantity <= 0) {
       removeItem(productId);
@@ -81,7 +77,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  /// Incrementa a quantidade de um item
   void incrementQuantity(String productId) {
     final index = _items.indexWhere(
       (item) => item.product.id == productId,
@@ -93,7 +88,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  /// Decrementa a quantidade de um item
   void decrementQuantity(String productId) {
     final index = _items.indexWhere(
       (item) => item.product.id == productId,
@@ -109,12 +103,10 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  /// Verifica se um produto está no carrinho
   bool isInCart(String productId) {
     return _items.any((item) => item.product.id == productId);
   }
 
-  /// Obtém a quantidade de um produto no carrinho
   int getQuantity(String productId) {
     final index = _items.indexWhere(
       (item) => item.product.id == productId,
@@ -123,26 +115,20 @@ class CartProvider with ChangeNotifier {
     return index >= 0 ? _items[index].quantity : 0;
   }
 
-  /// Limpa o carrinho
   void clear() {
     _items.clear();
     notifyListeners();
   }
 
-  /// Finaliza a compra criando um pedido
   Future<bool> checkout() async {
     if (_items.isEmpty) {
       return false;
     }
 
     try {
-      // Prepara os itens para o pedido
       final orderItems = _items.map((item) => item.toOrderItemMap()).toList();
 
-      print('🛒 Criando pedido com ${orderItems.length} itens');
-      print('💰 Total: R\$ $totalPrice');
 
-      // Cria o pedido no backend
       final result = await orderRepository.createOrder(
         items: orderItems,
         total: totalPrice,
@@ -150,18 +136,14 @@ class CartProvider with ChangeNotifier {
 
       return result.fold(
         (failure) {
-          print('❌ Falha ao criar pedido: ${failure.message}');
           return false;
         },
         (order) {
-          print('✅ Pedido criado com sucesso: ${order.id}');
-          // Limpa o carrinho apenas se o pedido foi criado com sucesso
           clear();
           return true;
         },
       );
     } catch (e) {
-      print('❌ Erro durante checkout: $e');
       return false;
     }
   }

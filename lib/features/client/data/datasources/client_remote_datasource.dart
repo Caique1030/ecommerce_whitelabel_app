@@ -22,7 +22,6 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
   @override
   Future<ClientModel> getClientConfig() async {
     try {
-      // Primeiro tenta pegar do cache
       final cachedConfig = sharedPreferences.getString(
         AppConstants.clientConfigKey,
       );
@@ -32,7 +31,6 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
         return ClientModel.fromJson(json);
       }
 
-      // Se não tiver em cache, busca da API
       final response = await apiClient.get(
         '${AppConstants.clientsEndpoint}/current',
         requiresAuth: false,

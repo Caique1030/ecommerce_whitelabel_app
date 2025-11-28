@@ -4,8 +4,7 @@ import 'package:flutter_ecommerce/features/products/presentation/bloc/products_b
 import 'package:flutter_ecommerce/features/products/presentation/bloc/products_event.dart';
 import 'package:flutter_ecommerce/features/products/presentation/bloc/products_state.dart';
 import 'package:flutter_ecommerce/features/products/presentation/pages/products_detail_page.dart';
-
-import '../../domain/entities/product.dart';
+import 'package:flutter_ecommerce/features/products/presentation/widgets/product_card.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({Key? key}) : super(key: key);
@@ -18,18 +17,15 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   void initState() {
     super.initState();
-    // Garante que ao abrir a página, os filtros estejam limpos
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCategories();
     });
   }
 
   void _loadCategories() {
-    // Limpa qualquer filtro existente e carrega todos os produtos
     context.read<ProductsBloc>().add(const ResetFilters());
   }
 
-  // Mapa de ícones para categorias comuns
   IconData _getCategoryIcon(String category) {
     final categoryLower = category.toLowerCase();
 
@@ -99,7 +95,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
     }
   }
 
-  // Mapa de cores para categorias
   Color _getCategoryColor(int index) {
     final colors = [
       const Color(0xFF3498db),
@@ -161,7 +156,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
           }
 
           if (state is ProductsLoaded) {
-            // Extrai categorias únicas dos produtos
             final categoriesSet = <String>{};
             for (var product in state.products) {
               if (product.category != null && product.category!.isNotEmpty) {
@@ -211,7 +205,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     icon: _getCategoryIcon(category),
                     color: _getCategoryColor(index),
                     onTap: () async {
-                      // ✅ Navegar para produtos da categoria
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -222,7 +215,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         ),
                       );
 
-                      // ✅ CRÍTICO: Ao voltar, limpa filtros e recarrega tudo
                       if (mounted) {
                         context.read<ProductsBloc>().add(const ResetFilters());
                       }
@@ -299,7 +291,6 @@ class _CategoryCard extends StatelessWidget {
   }
 }
 
-// ✅ Página de produtos por categoria - COM SEU PRÓPRIO BLOC
 class _CategoryProductsPage extends StatefulWidget {
   final String categoryName;
   final ProductsBloc productsBloc;
@@ -318,7 +309,6 @@ class _CategoryProductsPageState extends State<_CategoryProductsPage> {
   @override
   void initState() {
     super.initState();
-    // Carrega produtos da categoria ao abrir
     widget.productsBloc.add(FilterProductsEvent(category: widget.categoryName));
   }
 
@@ -326,7 +316,6 @@ class _CategoryProductsPageState extends State<_CategoryProductsPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // ✅ Limpa os filtros quando o usuário pressionar voltar
         widget.productsBloc.add(const ResetFilters());
         return true;
       },
@@ -337,7 +326,6 @@ class _CategoryProductsPageState extends State<_CategoryProductsPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              // ✅ Limpa filtros ao clicar no botão voltar
               widget.productsBloc.add(const ResetFilters());
               Navigator.of(context).pop();
             },
@@ -426,7 +414,7 @@ class _CategoryProductsPageState extends State<_CategoryProductsPage> {
                 itemCount: state.products.length,
                 itemBuilder: (context, index) {
                   final product = state.products[index];
-                  return _ProductCard(
+                  return ProductCard(
                     product: product,
                     onTap: () {
                       Navigator.push(
@@ -449,93 +437,3 @@ class _CategoryProductsPageState extends State<_CategoryProductsPage> {
   }
 }
 
-// Card de produto otimizado
-class _ProductCard extends StatelessWidget {
-  final Product product;
-  final VoidCallback onTap;
-
-  const _ProductCard({Key? key, required this.product, required this.onTap})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Imagem com altura fixa
-            SizedBox(
-              height: 140,
-              child: product.image != null
-                  ? Image.network(
-                      product.image!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.broken_image, size: 50),
-                      ),
-                    )
-                  : Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image, size: 50),
-                    ),
-            ),
-
-            // Informações do produto
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Nome do produto
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Preço
-                  if (product.hasDiscount) ...[
-                    Text(
-                      'R\$ ${product.price.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Text(
-                      'R\$ ${product.finalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ] else
-                    Text(
-                      'R\$ ${product.price.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

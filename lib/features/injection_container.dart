@@ -43,40 +43,40 @@ import 'package:shared_preferences/shared_preferences.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  //! External
+  
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => http.Client());
 
-  //! Core
+  
   sl.registerLazySingleton(
     () => ApiClient(httpClient: sl(), sharedPreferences: sl()),
   );
 
   
-  //! Features - Auth
-  // Bloc
+  
+  
   sl.registerFactory(
     () => AuthBloc(signIn: sl(), signUp: sl(), signOut: sl(), repository: sl()),
   );
 
-  // Use cases
+  
   sl.registerLazySingleton(() => SignIn(sl()));
   sl.registerLazySingleton(() => SignUp(sl()));
   sl.registerLazySingleton(() => SignOut(sl()));
 
-  // Repository
+  
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl()),
   );
 
-  // Data sources
+  
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(apiClient: sl(), sharedPreferences: sl()),
   );
 
-  //! Features - Products
-  // Bloc
+  
+  
   sl.registerFactory(
     () => ProductsBloc(
       getProducts: sl(),
@@ -88,13 +88,13 @@ Future<void> init() async {
 
   sl.registerFactory(() => CartBloc());
 
-  // Use cases
+  
   sl.registerLazySingleton(() => GetProducts(sl()));
   sl.registerLazySingleton(() => GetProductById(sl()));
   sl.registerLazySingleton(() => FilterProducts(sl()));
   sl.registerLazySingleton(() => SyncProducts(sl()));
 
-  // Repository
+  
   sl.registerLazySingleton<ProductsRepository>(
     () => ProductsRepositoryImpl(
       remoteDataSource: sl(),
@@ -102,13 +102,13 @@ Future<void> init() async {
     ),
   );
 
-  // Data sources
+  
   sl.registerLazySingleton<ProductRemoteDataSource>(
     () => ProductRemoteDataSourceImpl(apiClient: sl()),
   );
 
-  //! Features - Users
-  // Bloc
+  
+  
   sl.registerFactory(
     () => UserBloc(
       getUser: sl(),
@@ -121,7 +121,7 @@ Future<void> init() async {
     ),
   );
 
-  // Use cases
+  
   sl.registerLazySingleton(() => GetUser(sl()));
   sl.registerLazySingleton(() => GetProfile(sl()));
   sl.registerLazySingleton(() => UpdateUser(sl()));
@@ -130,12 +130,12 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeleteUser(sl()));
   sl.registerLazySingleton(() => GetAllUsers(sl()));
 
-  // Repository
+  
   sl.registerLazySingleton<UserRepository>(
     () => UserRepositoryImpl(remoteDataSource: sl()),
   );
 
-  // Data sources
+  
   sl.registerLazySingleton<UserRemoteDataSource>(
     () => UserRemoteDataSourceImpl(
       client: sl(),
@@ -143,34 +143,34 @@ Future<void> init() async {
     ),
   );
 
-  //! Features - Client
-  // Provider
+  
+  
   sl.registerLazySingleton(() => WhitelabelProvider(getClientConfig: sl()));
 
-  // Use cases
+  
   sl.registerLazySingleton(() => GetClientConfig(sl()));
 
-  // Repository
+  
   sl.registerLazySingleton<ClientRepository>(
     () => ClientRepositoryImpl(remoteDataSource: sl(), sharedPreferences: sl()),
   );
 
-  // Data sources
+  
   sl.registerLazySingleton<ClientRemoteDataSource>(
     () => ClientRemoteDataSourceImpl(apiClient: sl(), sharedPreferences: sl()),
   );
 
-  //! Features - Orders
-  // Repository - CORREÇÃO AQUI
+  
+  
   sl.registerLazySingleton<OrderRepository>(
     () => OrderRepositoryImpl(apiClient: sl()),
   );
-  // Use cases
+  
   sl.registerLazySingleton(() => GetOrders(sl()));
 
-  // Bloc
+  
   sl.registerFactory(() => OrderBloc(getOrders: sl()));
 
-  //! Cart Provider
+  
   sl.registerFactory<CartProvider>(() => CartProvider(orderRepository: sl()));
 }

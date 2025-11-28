@@ -30,14 +30,9 @@ class _ProductsListPageState extends State<ProductsListPage> {
   Future<void> _initializeApp() async {
     try {
 
-      print('📦 Carregando produtos...');
       context.read<ProductsBloc>().add(const LoadProducts());
 
-      // 3. A sincronização só acontecerá se LoadProducts retornar vazio
-      // (veja a lógica no ProductsBloc)
     } catch (e) {
-      print('❌ Erro ao inicializar aplicação: $e');
-      // Mesmo com erro, tenta carregar produtos existentes
       context.read<ProductsBloc>().add(const LoadProducts());
     }
   }
@@ -57,7 +52,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
         title: Text(whitelabelProvider.client?.name ?? 'Início'),
         backgroundColor: Theme.of(context).primaryColor,
         actions: [
-          // Botão de busca
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
@@ -65,7 +59,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
             },
             tooltip: 'Buscar',
           ),
-          // Botão para sincronizar manualmente
           IconButton(
             icon: const Icon(Icons.sync),
             onPressed: () {
@@ -73,7 +66,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
             },
             tooltip: 'Sincronizar Produtos',
           ),
-          // Botão de filtro
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
@@ -91,7 +83,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
         },
         child: BlocBuilder<ProductsBloc, ProductsState>(
           builder: (context, state) {
-            // Estado de sincronização
             if (state is ProductsSyncing) {
               return Center(
                 child: Column(
@@ -113,12 +104,10 @@ class _ProductsListPageState extends State<ProductsListPage> {
               );
             }
 
-            // Estado de carregamento
             if (state is ProductsLoading) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            // Estado de erro
             if (state is ProductsError) {
               return Center(
                 child: Column(
@@ -172,7 +161,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
               );
             }
 
-            // Estado vazio
             if (state is ProductsEmpty) {
               return Center(
                 child: Column(
@@ -222,11 +210,9 @@ class _ProductsListPageState extends State<ProductsListPage> {
               );
             }
 
-            // Estado com produtos carregados
             if (state is ProductsLoaded) {
               return Column(
                 children: [
-                  // Banner de filtro ativo
                   if (state.currentFilter != null)
                     Container(
                       padding: const EdgeInsets.all(8),
@@ -254,7 +240,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
                       ),
                     ),
 
-                  // Grid de produtos
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () async {
@@ -279,7 +264,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
               );
             }
 
-            // Estado inicial
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

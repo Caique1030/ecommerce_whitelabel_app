@@ -18,10 +18,9 @@ class OrderRepositoryImpl implements OrderRepository {
     required double total,
   }) async {
     try {
-      print('📦 Criando pedido: ${items.length} itens, total: R\$ $total');
 
       final response = await apiClient.post(
-        AppConstants.ordersEndpoint, // Certifique-se que isso está definido
+        AppConstants.ordersEndpoint,
         body: {
           'items': items,
           'total': total,
@@ -33,19 +32,14 @@ class OrderRepositoryImpl implements OrderRepository {
         return Left(ServerFailure(message: 'Resposta inválida do servidor'));
       }
 
-      print('✅ Pedido criado com sucesso: ${response['id']}');
       return Right(order_entity.Order.fromJson(response));
     } on UnauthorizedException catch (e) {
-      print('❌ Erro de autenticação: ${e.message}');
       return Left(UnauthorizedFailure(e.message));
     } on ServerException catch (e) {
-      print('❌ Erro do servidor: ${e.message}');
       return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
-      print('❌ Erro de rede: ${e.message}');
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      print('❌ Erro inesperado: $e');
       return Left(UnexpectedFailure('Erro ao criar pedido: ${e.toString()}'));
     }
   }
@@ -69,19 +63,14 @@ class OrderRepositoryImpl implements OrderRepository {
           .map((orderJson) => order_entity.Order.fromJson(orderJson))
           .toList();
 
-      print('✅ ${orders.length} pedidos carregados');
       return Right(orders);
     } on UnauthorizedException catch (e) {
-      print('❌ Erro de autenticação: ${e.message}');
       return Left(UnauthorizedFailure(e.message));
     } on ServerException catch (e) {
-      print('❌ Erro do servidor: ${e.message}');
       return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
-      print('❌ Erro de rede: ${e.message}');
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      print('❌ Erro inesperado: $e');
       return Left(UnexpectedFailure('Erro ao buscar pedidos: ${e.toString()}'));
     }
   }
@@ -100,22 +89,16 @@ class OrderRepositoryImpl implements OrderRepository {
         return Left(NotFoundFailure('Pedido não encontrado'));
       }
 
-      print('✅ Pedido encontrado');
       return Right(order_entity.Order.fromJson(response));
     } on NotFoundException catch (e) {
-      print('❌ Pedido não encontrado: ${e.message}');
       return Left(NotFoundFailure(e.message));
     } on UnauthorizedException catch (e) {
-      print('❌ Erro de autenticação: ${e.message}');
       return Left(UnauthorizedFailure(e.message));
     } on ServerException catch (e) {
-      print('❌ Erro do servidor: ${e.message}');
       return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
-      print('❌ Erro de rede: ${e.message}');
       return Left(NetworkFailure(e.message));
     } catch (e) {
-      print('❌ Erro inesperado: $e');
       return Left(UnexpectedFailure('Erro ao buscar pedido: ${e.toString()}'));
     }
   }

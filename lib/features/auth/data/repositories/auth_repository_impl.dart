@@ -25,7 +25,6 @@ class AuthRepositoryImpl implements AuthRepository {
       final userData = response['user'] as Map<String, dynamic>;
       final userModel = UserModel.fromJson(userData);
 
-      // ✅ CORREÇÃO: UserModel JÁ É User, não precisa de toEntity()
       return Right(userModel);
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
@@ -51,14 +50,12 @@ class AuthRepositoryImpl implements AuthRepository {
         role: role,
       );
 
-      // O registro pode retornar diretamente o usuário ou dentro de 'user'
       final userData = response['user'] != null
           ? response['user'] as Map<String, dynamic>
           : response as Map<String, dynamic>;
 
       final userModel = UserModel.fromJson(userData);
 
-      // ✅ CORREÇÃO: UserModel JÁ É User, não precisa de toEntity()
       return Right(userModel);
     } on ValidationException catch (e) {
       return Left(ValidationFailure(message: e.message));
@@ -92,7 +89,6 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(null);
       }
 
-      // ✅ CORREÇÃO: UserModel JÁ É User, não precisa de toEntity()
       return Right(userModel);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));

@@ -1,4 +1,3 @@
-// features/cart/presentation/bloc/cart_bloc.dart
 import 'package:bloc/bloc.dart';
 import 'cart_event.dart';
 import 'cart_state.dart';

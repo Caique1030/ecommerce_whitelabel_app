@@ -18,7 +18,6 @@ class Order {
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       id: json['id'],
-      // ✅ CORREÇÃO: Converter string para double se necessário
       total: _parseDouble(json['total']),
       status: json['status'],
       createdAt: DateTime.parse(json['createdAt']),
@@ -29,7 +28,6 @@ class Order {
     );
   }
 
-  // ✅ MÉTODO HELPER: Converte string ou num para double
   static double _parseDouble(dynamic value) {
     if (value is double) return value;
     if (value is int) return value.toDouble();
@@ -59,7 +57,6 @@ class OrderItem {
     return OrderItem(
       id: json['id'],
       quantity: json['quantity'],
-      // ✅ CORREÇÃO: Converter string para double se necessário
       price: _parseDouble(json['price']),
       productId: json['productId'],
       productName: json['product']?['name'] ?? 'Produto não encontrado',
@@ -67,7 +64,6 @@ class OrderItem {
     );
   }
 
-  // ✅ MÉTODO HELPER: Converte string ou num para double
   static double _parseDouble(dynamic value) {
     if (value is double) return value;
     if (value is int) return value.toDouble();

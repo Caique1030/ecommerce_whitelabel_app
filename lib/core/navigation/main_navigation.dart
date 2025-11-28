@@ -11,12 +11,11 @@ import 'package:flutter_ecommerce/features/products/presentation/pages/products_
 import 'package:flutter_ecommerce/features/products/domain/usecases/cart_provider.dart';
 
 class MainNavigation extends StatefulWidget {
-  // ✅ ADICIONADO: Parâmetro para definir a aba inicial
   final int initialIndex;
 
   const MainNavigation({
     Key? key,
-    this.initialIndex = 0, // Padrão: primeira aba (Início)
+    this.initialIndex = 0,
   }) : super(key: key);
 
   @override
@@ -26,21 +25,19 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   late int _currentIndex;
 
-  // Lista de páginas
   late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    // ✅ MODIFICADO: Usar o initialIndex passado como parâmetro
     _currentIndex = widget.initialIndex;
 
     _pages = [
-      const ProductsListPage(), // Início
-      const CategoriesPage(), // Categorias
-      const CartPage(), // Carrinho
-      const OffersPage(), // Ofertas
-      const MorePage(), // Mais (menu do usuário)
+      const ProductsListPage(),
+      const CategoriesPage(),
+      const CartPage(),
+      const OffersPage(),
+      const MorePage(),
     ];
   }
 
@@ -57,7 +54,6 @@ class _MainNavigationState extends State<MainNavigation> {
           index: _currentIndex,
           children: _pages,
         ),
-        // ✅ CORRIGIDO: BottomNavigationBar com Consumer para atualizar badge
         bottomNavigationBar: Consumer<CartProvider>(
           builder: (context, cart, child) {
             return BottomNavigationBar(
@@ -83,7 +79,6 @@ class _MainNavigationState extends State<MainNavigation> {
                   activeIcon: Icon(Icons.grid_view),
                   label: 'Categorias',
                 ),
-                // ✅ CARRINHO com Badge dinâmico
                 BottomNavigationBarItem(
                   icon: _buildCartIcon(cart, isActive: false),
                   activeIcon: _buildCartIcon(cart, isActive: true),
@@ -107,18 +102,15 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  // ✅ Widget helper para mostrar badge no ícone do carrinho
   Widget _buildCartIcon(CartProvider cart, {required bool isActive}) {
     final iconWidget = Icon(
       isActive ? Icons.shopping_cart : Icons.shopping_cart_outlined,
     );
 
-    // Se não tem itens, mostra apenas o ícone
     if (cart.totalQuantity == 0) {
       return iconWidget;
     }
 
-    // Se tem itens, mostra com badge
     return Badge(
       label: Text(
         '${cart.totalQuantity}',

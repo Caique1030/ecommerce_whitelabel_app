@@ -1,6 +1,5 @@
 import 'package:flutter_ecommerce/core/errors/failures.dart';
 
-/// Custom exceptions for the application
 class ServerException implements Exception {
   final String message;
   final int? statusCode;

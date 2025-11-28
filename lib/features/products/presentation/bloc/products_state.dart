@@ -52,8 +52,6 @@ class ProductsEmpty extends ProductsState {
   const ProductsEmpty();
 }
 
-/// Estados para operações CRUD
-
 class ProductCreatedSuccess extends ProductsState {
   final Product product;
 

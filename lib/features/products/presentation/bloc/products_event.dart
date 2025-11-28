@@ -8,7 +8,6 @@ abstract class ProductsEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Evento para sincronizar produtos dos fornecedores
 class SyncProductsEvent extends ProductsEvent {
   const SyncProductsEvent();
 }
@@ -76,7 +75,6 @@ class ResetFilters extends ProductsEvent {
   const ResetFilters();
 }
 
-/// Evento para criar um novo produto
 class CreateProductEvent extends ProductsEvent {
   final Product product;
 
@@ -86,7 +84,6 @@ class CreateProductEvent extends ProductsEvent {
   List<Object?> get props => [product];
 }
 
-/// Evento para atualizar um produto
 class UpdateProductEvent extends ProductsEvent {
   final String id;
   final Product product;
@@ -100,7 +97,6 @@ class UpdateProductEvent extends ProductsEvent {
   List<Object?> get props => [id, product];
 }
 
-/// Evento para deletar um produto
 class DeleteProductEvent extends ProductsEvent {
   final String id;
 

@@ -1,4 +1,3 @@
-// features/cart/presentation/bloc/cart_event.dart
 import 'package:flutter_ecommerce/features/products/domain/entities/product.dart';
 
 abstract class CartEvent {}

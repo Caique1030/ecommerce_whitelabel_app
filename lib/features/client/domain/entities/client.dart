@@ -24,11 +24,9 @@ class Client extends Equatable {
     required this.updatedAt,
   });
 
-  /// Converte a string primaryColor em um objeto Color
   Color? get primaryColorValue {
     if (primaryColor == null) return null;
     try {
-      // Remove o '#' se existir e converte para int
       final hexColor = primaryColor!.replaceAll('#', '');
       return Color(int.parse('FF$hexColor', radix: 16));
     } catch (e) {
@@ -36,11 +34,9 @@ class Client extends Equatable {
     }
   }
 
-  /// Converte a string secondaryColor em um objeto Color
   Color? get secondaryColorValue {
     if (secondaryColor == null) return null;
     try {
-      // Remove o '#' se existir e converte para int
       final hexColor = secondaryColor!.replaceAll('#', '');
       return Color(int.parse('FF$hexColor', radix: 16));
     } catch (e) {

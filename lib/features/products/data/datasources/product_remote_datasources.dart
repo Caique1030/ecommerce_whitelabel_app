@@ -4,7 +4,6 @@ import '../../../../core/network/api_client.dart';
 import '../models/product_model.dart';
 
 abstract class ProductRemoteDataSource {
-  /// Obtém lista de produtos com filtros opcionais
   Future<List<ProductModel>> getProducts({
     String? name,
     String? category,
@@ -15,19 +14,14 @@ abstract class ProductRemoteDataSource {
     int? limit,
   });
 
-  /// Obtém um produto por ID
   Future<ProductModel> getProductById(String id);
 
-  /// Cria um novo produto
   Future<ProductModel> createProduct(ProductModel product);
 
-  /// Atualiza um produto existente
   Future<ProductModel> updateProduct(String id, ProductModel product);
 
-  /// Remove um produto
   Future<void> deleteProduct(String id);
 
-  /// Sincroniza produtos dos fornecedores
   Future<void> syncProducts();
 }
 
@@ -60,14 +54,13 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       final response = await apiClient.get(
         AppConstants.productsEndpoint,
         queryParameters: queryParameters,
-        requiresAuth: false, // Produtos são públicos
+        requiresAuth: false,
       );
 
       if (response == null) {
         throw ServerException(message: 'Invalid response from server');
       }
 
-      // O backend retorna { products: [], total: number }
       final products = response['products'] as List;
       return products.map((json) => ProductModel.fromJson(json)).toList();
     } catch (e) {

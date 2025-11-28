@@ -17,7 +17,7 @@ class User {
     required this.clientId,
   });
 
-  // ✅ MÉTODO PARA CONVERTER PARA JSON
+  
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -30,7 +30,7 @@ class User {
     };
   }
 
-  // ✅ MÉTODO PARA CRIAR UMA CÓPIA COM ATUALIZAÇÕES
+  
   User copyWith({
     String? id,
     String? name,
@@ -51,7 +51,7 @@ class User {
     );
   }
 
-  // ✅ MÉTODO PARA CRIAR A PARTIR DE JSON
+  
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] ?? '',

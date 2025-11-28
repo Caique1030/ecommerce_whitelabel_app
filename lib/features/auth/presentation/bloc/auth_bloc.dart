@@ -104,7 +104,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (state is Authenticated) {
-      // Mantém o estado atual, apenas atualiza o usuário
       emit(Authenticated(user: event.user));
     }
   }

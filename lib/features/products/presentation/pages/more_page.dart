@@ -45,7 +45,6 @@ class _MorePageState extends State<MorePage> {
 
     return CustomScrollView(
       slivers: [
-        // App Bar com perfil do usuário
         SliverAppBar(
           expandedHeight: 200,
           pinned: true,
@@ -107,12 +106,10 @@ class _MorePageState extends State<MorePage> {
           ),
         ),
 
-        // Menu de opções
         SliverList(
           delegate: SliverChildListDelegate([
             const SizedBox(height: 8),
 
-            // Seção: Minha Conta
             _buildSectionHeader(context, 'Minha Conta'),
             _buildMenuItem(
               context,
@@ -120,17 +117,13 @@ class _MorePageState extends State<MorePage> {
               title: 'Editar Perfil',
               subtitle: 'Alterar nome e informações',
               onTap: () async {
-                print('🔄 MorePage: Navegando para EditProfilePage');
                 final result = await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const EditProfilePage(),
                   ),
                 );
 
-                // Se result for true, significa que houve atualização
-                // O WebSocket já deve ter atualizado, mas podemos forçar um refresh
                 if (result == true && mounted) {
-                  print('✅ MorePage: Retornou da edição, forçando refresh');
                   context
                       .read<AuthBloc>()
                       .add(const CheckAuthenticationEvent());
@@ -171,7 +164,6 @@ class _MorePageState extends State<MorePage> {
 
             const Divider(height: 32),
 
-            // Seção: Informações
             _buildSectionHeader(context, 'Informações'),
             _buildMenuItem(
               context,
@@ -187,7 +179,6 @@ class _MorePageState extends State<MorePage> {
 
             const Divider(height: 32),
 
-            // Botão de Logout
             Padding(
               padding: const EdgeInsets.all(16),
               child: OutlinedButton.icon(

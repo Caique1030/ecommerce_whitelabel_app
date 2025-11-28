@@ -44,14 +44,12 @@ class Product extends Equatable {
       return price;
     }
 
-    // Se o desconto for em porcentagem
     if (discountValue!.contains('%')) {
       final percentage =
           double.tryParse(discountValue!.replaceAll('%', '').trim()) ?? 0;
       return price - (price * percentage / 100);
     }
 
-    // Se o desconto for um valor fixo
     final discount = double.tryParse(discountValue!) ?? 0;
     return price - discount;
   }

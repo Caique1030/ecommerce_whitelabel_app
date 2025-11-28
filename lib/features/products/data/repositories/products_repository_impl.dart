@@ -33,19 +33,16 @@ class ProductsRepositoryImpl implements ProductsRepository {
     bool forceRefresh = false,
   }) async {
     try {
-      // ✅ Verifica se tem filtros ativos
       final hasFilters = name != null ||
           category != null ||
           minPrice != null ||
           maxPrice != null ||
           supplierId != null;
 
-      // ✅ Se tem filtros, busca do cache e filtra localmente
       if (hasFilters) {
         final cachedProducts = await _getCachedProducts();
 
         if (cachedProducts.isNotEmpty) {
-          // Aplica filtros localmente
           final filteredProducts = _applyLocalFilters(
             cachedProducts,
             name: name,
@@ -59,7 +56,6 @@ class ProductsRepositoryImpl implements ProductsRepository {
         }
       }
 
-      // ✅ Se não tem cache válido ou não tem filtros, busca da API
       if (!hasFilters && await _hasCachedProducts()) {
         final cachedProducts = await _getCachedProducts();
         if (cachedProducts.isNotEmpty) {
@@ -67,7 +63,6 @@ class ProductsRepositoryImpl implements ProductsRepository {
         }
       }
 
-      // ✅ Busca da API
       final products = await remoteDataSource.getProducts(
         name: name,
         category: category,
@@ -78,17 +73,14 @@ class ProductsRepositoryImpl implements ProductsRepository {
         limit: limit,
       );
 
-      // ✅ Salva no cache apenas se não tiver filtros
       if (!hasFilters && products.isNotEmpty) {
         await _cacheProducts(products);
       }
 
       return Right(products);
     } on ServerException catch (e) {
-      // ✅ Erro na API? Tenta retornar cache
       final cachedProducts = await _getCachedProducts();
       if (cachedProducts.isNotEmpty) {
-        // Se tem filtros, aplica localmente
         if (name != null ||
             category != null ||
             minPrice != null ||
@@ -129,7 +121,6 @@ class ProductsRepositoryImpl implements ProductsRepository {
     }
   }
 
-  /// ✅ NOVO: Aplica filtros localmente nos produtos em cache
   List<Product> _applyLocalFilters(
     List<Product> products, {
     String? name,
@@ -140,7 +131,6 @@ class ProductsRepositoryImpl implements ProductsRepository {
   }) {
     var filtered = products;
 
-    // Filtro por nome (case insensitive)
     if (name != null && name.isNotEmpty) {
       filtered = filtered.where((p) {
         return p.name.toLowerCase().contains(name.toLowerCase()) ||
@@ -149,7 +139,6 @@ class ProductsRepositoryImpl implements ProductsRepository {
       }).toList();
     }
 
-    // Filtro por categoria (case insensitive e normalizado)
     if (category != null && category.isNotEmpty) {
       filtered = filtered.where((p) {
         if (p.category == null) return false;
@@ -162,17 +151,14 @@ class ProductsRepositoryImpl implements ProductsRepository {
       }).toList();
     }
 
-    // Filtro por preço mínimo
     if (minPrice != null) {
       filtered = filtered.where((p) => p.price >= minPrice).toList();
     }
 
-    // Filtro por preço máximo
     if (maxPrice != null) {
       filtered = filtered.where((p) => p.price <= maxPrice).toList();
     }
 
-    // Filtro por fornecedor
     if (supplierId != null) {
       filtered = filtered.where((p) => p.supplierId == supplierId).toList();
     }
@@ -180,12 +166,11 @@ class ProductsRepositoryImpl implements ProductsRepository {
     return filtered;
   }
 
-  /// ✅ NOVO: Normaliza categorias para melhorar as buscas
   String _normalizeCategory(String category) {
     return category
         .toLowerCase()
         .trim()
-        .replaceAll(RegExp(r'\s+'), ' '); // Remove espaços extras
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   @override
@@ -203,7 +188,6 @@ class ProductsRepositoryImpl implements ProductsRepository {
     }
   }
 
-  // ✅ Métodos de cache
   Future<List<Product>> _getCachedProducts() async {
     try {
       final jsonString = sharedPreferences.getString(_cachedProductsKey);

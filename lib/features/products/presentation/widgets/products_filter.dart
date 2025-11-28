@@ -19,7 +19,6 @@ class _ProductFilterState extends State<ProductFilter> {
   final _minPriceController = TextEditingController();
   final _maxPriceController = TextEditingController();
 
-  // ✅ Lista de categorias normalizadas (baseada nos seus dados reais)
   final List<String> _categories = [
     'Eletrônicos',
     'Roupas',
@@ -29,7 +28,6 @@ class _ProductFilterState extends State<ProductFilter> {
     'Beleza',
     'Brinquedos',
     'Alimentos',
-    // Categorias do fornecedor brasileiro
     'Grocery',
     'Tools',
     'Outdoors',
@@ -51,7 +49,7 @@ class _ProductFilterState extends State<ProductFilter> {
     'Beauty',
     'Electronics',
     'Sports',
-  ]..sort(); // Ordena alfabeticamente
+  ]..sort(); 
 
   @override
   void dispose() {
@@ -62,7 +60,6 @@ class _ProductFilterState extends State<ProductFilter> {
   }
 
   void _applyFilters() {
-    // Parse dos valores de preço
     _minPrice = _minPriceController.text.isNotEmpty
         ? double.tryParse(_minPriceController.text.replaceAll(',', '.'))
         : null;
@@ -70,7 +67,6 @@ class _ProductFilterState extends State<ProductFilter> {
         ? double.tryParse(_maxPriceController.text.replaceAll(',', '.'))
         : null;
 
-    // Validação básica
     if (_minPrice != null && _maxPrice != null && _minPrice! > _maxPrice!) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -80,12 +76,6 @@ class _ProductFilterState extends State<ProductFilter> {
       );
       return;
     }
-
-    print('🔍 Aplicando filtros:');
-    print('   - Busca: ${_searchController.text}');
-    print('   - Categoria: $_selectedCategory');
-    print('   - Min: $_minPrice');
-    print('   - Max: $_maxPrice');
 
     context.read<ProductsBloc>().add(
           FilterProductsEvent(
@@ -130,7 +120,6 @@ class _ProductFilterState extends State<ProductFilter> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Handle
               Center(
                 child: Container(
                   width: 40,
@@ -143,7 +132,6 @@ class _ProductFilterState extends State<ProductFilter> {
               ),
               const SizedBox(height: 16),
 
-              // Título
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -165,7 +153,6 @@ class _ProductFilterState extends State<ProductFilter> {
                 child: ListView(
                   controller: scrollController,
                   children: [
-                    // Busca por nome
                     TextField(
                       controller: _searchController,
                       decoration: const InputDecoration(
@@ -177,7 +164,6 @@ class _ProductFilterState extends State<ProductFilter> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Categoria
                     Text(
                       'Categoria',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -215,7 +201,6 @@ class _ProductFilterState extends State<ProductFilter> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Faixa de preço
                     Text(
                       'Faixa de Preço',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -270,7 +255,6 @@ class _ProductFilterState extends State<ProductFilter> {
 
               const SizedBox(height: 16),
 
-              // Botões
               Row(
                 children: [
                   Expanded(

@@ -32,7 +32,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required this.sharedPreferences,
   });
 
-  // ...existing code...
   @override
   Future<Map<String, dynamic>> signIn({
     required String email,
@@ -49,44 +48,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerException(message: 'Invalid response from server');
       }
 
-      print('📦 Resposta do login: $response'); // 🔍 LOG
 
-      // Salvar token
       final token = response['access_token'] as String?;
       if (token != null) {
         await sharedPreferences.setString(AppConstants.accessTokenKey, token);
-        print(
-            '✅ Token salvo: ${token.substring(0, 20)}...'); // 🔍 LOG (mostra só início)
-
-        // Verificar se foi salvo mesmo
-        final savedToken =
-            sharedPreferences.getString(AppConstants.accessTokenKey);
-        print(
-            '🔍 Token recuperado do storage: ${savedToken?.substring(0, 20)}...'); // 🔍 LOG
-      } else {
-        print('❌ ERRO: Token não encontrado na resposta!'); // 🔍 LOG
+        
       }
 
-      // Salvar dados do usuário
       final userData = response['user'];
       if (userData != null) {
         await sharedPreferences.setString(
           AppConstants.userDataKey,
           json.encode(userData),
         );
-        print('✅ Dados do usuário salvos: ${userData['email']}'); // 🔍 LOG
       }
 
       return response;
     } catch (e) {
-      print('❌ Erro no signIn: $e'); // 🔍 LOG
       if (e is AuthenticationException) {
         rethrow;
       }
       throw ServerException(message: 'Failed to sign in: ${e.toString()}');
     }
   }
-// ...existing code...
 
   @override
   Future<Map<String, dynamic>> signUp({
@@ -111,13 +95,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerException(message: 'Invalid response from server');
       }
 
-      // Salvar token se vier
       final token = response['access_token'] as String?;
       if (token != null) {
         await sharedPreferences.setString(AppConstants.accessTokenKey, token);
       }
 
-      // Salvar dados do usuário
       final userData = response['user'];
       if (userData != null) {
         await sharedPreferences.setString(
