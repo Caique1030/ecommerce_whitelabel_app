@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter_ecommerce/features/auth/data/models/user_model.dart';
+import 'package:flutter_ecommerce/features/users/data/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/exceptions.dart';

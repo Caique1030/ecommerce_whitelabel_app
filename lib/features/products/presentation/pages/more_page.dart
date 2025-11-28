@@ -10,7 +10,6 @@ import 'package:flutter_ecommerce/features/orders/presentation/pages/orders_page
 import 'package:flutter_ecommerce/features/users/presentantion/pages/user_edit_page.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/pages/change_password_page.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/services/socket_io_service.dart';
 
 class MorePage extends StatefulWidget {
   const MorePage({Key? key}) : super(key: key);
@@ -20,85 +19,7 @@ class MorePage extends StatefulWidget {
 }
 
 class _MorePageState extends State<MorePage> {
-  late final SocketIOService _socketService;
 
-  @override
-  void initState() {
-    super.initState();
-    _socketService = context.read<SocketIOService>();
-
-    print('🔊 MorePage: Configurando listeners WebSocket');
-
-    // ✅ CRÍTICO: Escuta atualizações de usuário via WebSocket
-    _socketService.onUserUpdated = (data) {
-      print('📡 MorePage: Recebeu evento user:updated');
-      print('📦 Dados recebidos: $data');
-
-      final authState = context.read<AuthBloc>().state;
-      if (authState is Authenticated) {
-        // Verifica se o usuário atualizado é o atual
-        if (data['id'] == authState.user.id) {
-          print('✅ MorePage: Usuário atualizado é o atual, recarregando dados');
-
-          // Recarrega as informações do usuário
-          context.read<AuthBloc>().add(const CheckAuthenticationEvent());
-
-          // Mostra notificação
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('✅ Perfil atualizado'),
-                backgroundColor: Colors.green,
-                duration: Duration(seconds: 2),
-              ),
-            );
-          }
-        } else {
-          print(
-              'ℹ️ MorePage: Atualização de outro usuário (ID: ${data['id']})');
-        }
-      }
-    };
-
-    _socketService.onUserRemoved = (userId) {
-      print('🗑️ MorePage: Recebeu evento user:removed');
-      print('🆔 UserID removido: $userId');
-
-      final authState = context.read<AuthBloc>().state;
-      if (authState is Authenticated) {
-        // Verifica se o usuário removido é o atual
-        if (userId == authState.user.id) {
-          print('⚠️ MorePage: Usuário atual foi removido, fazendo logout');
-
-          // Desloga o usuário
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('❌ Sua conta foi removida'),
-                backgroundColor: Colors.red,
-                duration: Duration(seconds: 3),
-              ),
-            );
-          }
-
-          context.read<AuthBloc>().add(const SignOutRequested());
-        } else {
-          print('ℹ️ MorePage: Outro usuário foi removido (ID: $userId)');
-        }
-      }
-    };
-
-    print('✅ MorePage: Listeners configurados com sucesso');
-  }
-
-  @override
-  void dispose() {
-    print('🔇 MorePage: Removendo listeners WebSocket');
-    // Limpa os callbacks ao sair da página
-    _socketService.onUserUpdated = null;
-    _socketService.onUserRemoved = null;
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -262,31 +183,7 @@ class _MorePageState extends State<MorePage> {
               },
             ),
 
-            // Status de conexão WebSocket
-            _buildMenuItem(
-              context,
-              icon: _socketService.isConnected
-                  ? Icons.cloud_done
-                  : Icons.cloud_off,
-              title: 'Status de Conexão',
-              subtitle: _socketService.isConnected
-                  ? 'Conectado ao servidor'
-                  : 'Desconectado',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      _socketService.isConnected
-                          ? '✅ Conectado - Você receberá atualizações em tempo real'
-                          : '⚠️ Desconectado - Reconecte para receber atualizações',
-                    ),
-                    backgroundColor: _socketService.isConnected
-                        ? Colors.green
-                        : Colors.orange,
-                  ),
-                );
-              },
-            ),
+           
 
             const Divider(height: 32),
 

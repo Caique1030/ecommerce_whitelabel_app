@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_ecommerce/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_bloc.dart';
@@ -9,10 +10,10 @@ import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_state.d
 import 'package:flutter_ecommerce/features/injection_container.dart' as di;
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({Key? key}) : super(key: key);
+  const EditProfilePage({super.key});
 
   @override
-  _EditProfilePageState createState() => _EditProfilePageState();
+  State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
@@ -31,6 +32,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       if (authState is Authenticated) {
         _nameController.text = authState.user.name;
         _emailController.text = authState.user.email;
+        _phoneController.text = authState.user.phone ?? '';
       }
       _isInitialized = true;
     }
@@ -60,6 +62,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
+    // ✅ USA OS DADOS ATUAIS E ATUALIZA APENAS OS CAMPOS EDITADOS
     final updatedUser = User(
       id: authState.user.id,
       name: _nameController.text.trim(),
@@ -67,6 +70,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       phone: _phoneController.text.trim().isEmpty
           ? null
           : _phoneController.text.trim(),
+      avatarUrl: authState.user.avatarUrl, // ✅ MANTÉM O AVATAR ATUAL
+      role: authState.user.role, // ✅ MANTÉM A ROLE ATUAL
+      clientId: authState.user.clientId, // ✅ MANTÉM O CLIENT_ID ATUAL
     );
 
     // Dispara o evento de atualização
@@ -86,9 +92,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         body: BlocConsumer<UserBloc, UserState>(
           listener: (context, state) async {
+            // ✅ GUARDA O CONTEXT ANTES DO ASYNC
+            final currentContext = context;
+            
             if (state is UserUpdated) {
+              // ✅ ATUALIZAÇÃO CRÍTICA: Notifica o AuthBloc sobre a mudança
+              currentContext.read<AuthBloc>().add(
+                    UserProfileUpdated(user: state.user),
+                  );
+
               // ✅ Mostra mensagem de sucesso
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(currentContext).showSnackBar(
                 const SnackBar(
                   content: Text('Perfil atualizado com sucesso!'),
                   backgroundColor: Colors.green,
@@ -97,14 +111,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
               );
 
               // ✅ Aguarda um pouco e volta
-              // O WebSocket vai atualizar o AuthBloc automaticamente
               await Future.delayed(const Duration(milliseconds: 500));
 
               if (mounted) {
-                Navigator.of(context).pop(true);
+                Navigator.of(currentContext).pop(true);
               }
             } else if (state is UserError) {
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(currentContext).showSnackBar(
                 SnackBar(
                   content: Text(state.message),
                   backgroundColor: Colors.red,
@@ -215,6 +228,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                         const SizedBox(height: 32),
 
+                        // Informações não editáveis
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Informações do Sistema',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[700],
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text('Perfil: ${authState.user.role}'),
+                              const SizedBox(height: 4),
+                              Text('Cliente ID: ${authState.user.clientId}'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
                         // Botão Salvar
                         SizedBox(
                           width: double.infinity,
@@ -255,7 +298,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           child: OutlinedButton.icon(
                             onPressed: isLoading
                                 ? null
-                                : () => Navigator.of(context).pop(),
+                                : () => Navigator.of(context).pop(false),
                             icon: const Icon(Icons.cancel),
                             label: const Text(
                               'Cancelar',

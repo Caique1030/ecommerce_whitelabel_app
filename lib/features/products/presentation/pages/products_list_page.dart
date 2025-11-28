@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../client/presentation/provider/whitelabel_provider.dart';
-import '../../../../core/services/socket_io_service.dart';
 import '../bloc/products_bloc.dart';
 import '../bloc/products_event.dart';
 import '../bloc/products_state.dart';
@@ -20,7 +19,6 @@ class ProductsListPage extends StatefulWidget {
 }
 
 class _ProductsListPageState extends State<ProductsListPage> {
-  late final SocketIOService _socketService;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -29,18 +27,9 @@ class _ProductsListPageState extends State<ProductsListPage> {
     _initializeApp();
   }
 
-  /// Inicializa a aplicação na ordem correta:
-  /// 1. Conecta ao Socket.IO
-  /// 2. Carrega produtos existentes
-  /// 3. Só sincroniza se não houver produtos
   Future<void> _initializeApp() async {
     try {
-      // 1. Conectar ao Socket.IO
-      _socketService = context.read<SocketIOService>();
-      await _socketService.connect();
-      print('✅ Socket.IO conectado com sucesso');
 
-      // 2. Carregar produtos existentes (do cache ou API)
       print('📦 Carregando produtos...');
       context.read<ProductsBloc>().add(const LoadProducts());
 
@@ -56,7 +45,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
   @override
   void dispose() {
     _searchController.dispose();
-    _socketService.disconnect();
     super.dispose();
   }
 
@@ -309,31 +297,6 @@ class _ProductsListPageState extends State<ProductsListPage> {
         ),
       ),
 
-      // Indicador de conexão Socket.IO (opcional - pode remover se quiser)
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(4),
-        color: _socketService.isConnected
-            ? Colors.green.withOpacity(0.1)
-            : Colors.red.withOpacity(0.1),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              _socketService.isConnected ? Icons.cloud_done : Icons.cloud_off,
-              size: 14,
-              color: _socketService.isConnected ? Colors.green : Colors.red,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              _socketService.isConnected ? 'Conectado' : 'Desconectado',
-              style: TextStyle(
-                fontSize: 10,
-                color: _socketService.isConnected ? Colors.green : Colors.red,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 import '../../../../core/errors/failures.dart';
-import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 class SignUp {

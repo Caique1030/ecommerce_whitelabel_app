@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter_ecommerce/features/users/data/models/user_model.dart';
+import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
-import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
-import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -25,7 +25,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final userData = response['user'] as Map<String, dynamic>;
       final userModel = UserModel.fromJson(userData);
 
-      return Right(userModel.toEntity());
+      // ✅ CORREÇÃO: UserModel JÁ É User, não precisa de toEntity()
+      return Right(userModel);
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
     } on ServerException catch (e) {
@@ -57,7 +58,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final userModel = UserModel.fromJson(userData);
 
-      return Right(userModel.toEntity());
+      // ✅ CORREÇÃO: UserModel JÁ É User, não precisa de toEntity()
+      return Right(userModel);
     } on ValidationException catch (e) {
       return Left(ValidationFailure(message: e.message));
     } on ServerException catch (e) {
@@ -90,7 +92,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(null);
       }
 
-      return Right(userModel.toEntity());
+      // ✅ CORREÇÃO: UserModel JÁ É User, não precisa de toEntity()
+      return Right(userModel);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
     } catch (e) {

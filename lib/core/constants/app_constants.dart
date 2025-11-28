@@ -5,9 +5,6 @@ class AppConstants {
   static const String baseUrl = 'http://localhost:3000/api';
   static const String apiVersion = 'v1';
 
-  // WebSocket Configuration
-  static const String wsNamespace = 'events';
-
   // Endpoints
   static const String authEndpoint = '/auth';
   static const String productsEndpoint = '/products';

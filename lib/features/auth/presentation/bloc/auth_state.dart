@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/user.dart';
+import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();

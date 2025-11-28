@@ -22,6 +22,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignUpRequested>(_onSignUpRequested);
     on<SignOutRequested>(_onSignOutRequested);
     on<CheckAuthenticationEvent>(_onCheckAuthentication);
+    on<UserProfileUpdated>(_onUserProfileUpdated); // ✅ NOVO HANDLER
   }
 
   Future<void> _onSignInRequested(
@@ -94,6 +95,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       });
     } else {
       emit(const Unauthenticated());
+    }
+  }
+
+  // ✅ NOVO MÉTODO: Atualiza o usuário no estado Authenticated
+  Future<void> _onUserProfileUpdated(
+    UserProfileUpdated event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (state is Authenticated) {
+      // Mantém o estado atual, apenas atualiza o usuário
+      emit(Authenticated(user: event.user));
     }
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter_ecommerce/core/network/api_client.dart';
-import 'package:flutter_ecommerce/core/services/socket_io_service.dart';
 import 'package:flutter_ecommerce/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:flutter_ecommerce/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_ecommerce/features/auth/domain/repositories/auth_repository.dart';
@@ -54,11 +53,7 @@ Future<void> init() async {
     () => ApiClient(httpClient: sl(), sharedPreferences: sl()),
   );
 
-  // Socket.IO Service
-  sl.registerLazySingleton(
-    () => SocketIOService(sharedPreferences: sl()),
-  );
-
+  
   //! Features - Auth
   // Bloc
   sl.registerFactory(

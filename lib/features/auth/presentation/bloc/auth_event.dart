@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
@@ -40,4 +41,13 @@ class SignOutRequested extends AuthEvent {
 
 class CheckAuthenticationEvent extends AuthEvent {
   const CheckAuthenticationEvent();
+}
+// ✅ NOVO EVENTO: Para atualizar o usuário no AuthBloc
+class UserProfileUpdated extends AuthEvent {
+  final User user;
+
+  const UserProfileUpdated({required this.user});
+
+  @override
+  List<Object?> get props => [user];
 }

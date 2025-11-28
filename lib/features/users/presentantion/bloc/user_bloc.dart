@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ecommerce/core/errors/exceptions.dart';
+import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_event.dart';
+import 'package:flutter_ecommerce/features/users/presentantion/bloc/user_state.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/usecases/get_user.dart';
 import '../../domain/usecases/get_profile.dart';
@@ -8,8 +10,7 @@ import '../../domain/usecases/update_profile.dart';
 import '../../domain/usecases/change_password.dart';
 import '../../domain/usecases/delete_user.dart';
 import '../../domain/usecases/get_all_users.dart';
-import 'user_event.dart';
-import 'user_state.dart';
+
 
 class UserBloc extends Bloc<UserEvent, UserState> {
   final GetUser getUser;
@@ -38,7 +39,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<LoadAllUsersEvent>(_onLoadAllUsers);
   }
 
-  // Carrega um usuário específico por ID
   Future<void> _onLoadUser(LoadUser event, Emitter<UserState> emit) async {
     emit(UserLoading());
     final result = await getUser(event.id);
@@ -48,9 +48,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     );
   }
 
-  // Carrega o perfil do usuário autenticado
-  Future<void> _onLoadProfile(
-      LoadProfile event, Emitter<UserState> emit) async {
+  Future<void> _onLoadProfile(LoadProfile event, Emitter<UserState> emit) async {
     emit(UserLoading());
     final result = await getProfile();
     result.fold(
@@ -59,21 +57,16 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     );
   }
 
-  // Atualiza um usuário específico (admin)
-  Future<void> _onUpdateUser(
-      UpdateUserEvent event, Emitter<UserState> emit) async {
+  Future<void> _onUpdateUser(UpdateUserEvent event, Emitter<UserState> emit) async {
     emit(UserLoading());
-    final result =
-        await updateUser(UpdateUserParams(id: event.id, user: event.user));
+    final result = await updateUser(UpdateUserParams(id: event.id, user: event.user));
     result.fold(
       (failure) => emit(UserError(_mapFailureToMessage(failure))),
       (user) => emit(UserUpdated(user)),
     );
   }
 
-  // Atualiza o perfil do usuário autenticado
-  Future<void> _onUpdateProfile(
-      UpdateProfileEvent event, Emitter<UserState> emit) async {
+  Future<void> _onUpdateProfile(UpdateProfileEvent event, Emitter<UserState> emit) async {
     emit(UserLoading());
     final result = await updateProfile(event.user);
     result.fold(
@@ -82,25 +75,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     );
   }
 
-  // Altera a senha do usuário
-  Future<void> _onChangePassword(
-      ChangePasswordEvent event, Emitter<UserState> emit) async {
+  Future<void> _onChangePassword(ChangePasswordEvent event, Emitter<UserState> emit) async {
     emit(UserLoading());
-    final result = await changePassword(
-      ChangePasswordParams(
-        oldPassword: event.oldPassword,
-        newPassword: event.newPassword,
-      ),
-    );
+    final result = await changePassword(ChangePasswordParams(
+      oldPassword: event.oldPassword,
+      newPassword: event.newPassword,
+    ));
     result.fold(
       (failure) => emit(UserError(_mapFailureToMessage(failure))),
       (_) => emit(PasswordChanged()),
     );
   }
 
-  // Deleta um usuário
-  Future<void> _onDeleteUser(
-      DeleteUserEvent event, Emitter<UserState> emit) async {
+  Future<void> _onDeleteUser(DeleteUserEvent event, Emitter<UserState> emit) async {
     emit(UserLoading());
     final result = await deleteUser(event.id);
     result.fold(
@@ -109,9 +96,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     );
   }
 
-  // Carrega todos os usuários
-  Future<void> _onLoadAllUsers(
-      LoadAllUsersEvent event, Emitter<UserState> emit) async {
+  Future<void> _onLoadAllUsers(LoadAllUsersEvent event, Emitter<UserState> emit) async {
     emit(UserLoading());
     final result = await getAllUsers();
     result.fold(

@@ -1,4 +1,5 @@
-import '../../domain/entities/user.dart';
+
+import 'package:flutter_ecommerce/features/users/domain/entities/user.dart';
 
 abstract class UserEvent {}
 
